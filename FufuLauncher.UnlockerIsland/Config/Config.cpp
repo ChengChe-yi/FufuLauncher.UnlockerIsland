@@ -100,7 +100,7 @@ namespace Config {
         if (g_Config.selected_fps > 100000) {
             g_Config.selected_fps = 100000;
         } else if (g_Config.selected_fps < 1) {
-            g_Config.selected_fps = 1;
+            g_Config.selected_fps = 60;
         }
         
         g_Config.enable_vsync_override = ReadInt("VSync", 1, file);
