@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <Windows.h>
 
 namespace FreeCamera {
     namespace {
@@ -62,6 +63,36 @@ namespace FreeCamera {
         HWND g_GameWindow = nullptr;
         WNDPROC g_OldWndProc = nullptr;
         HHOOK g_KbHook = nullptr;
+
+        static void* SEH_GetMain(FnGetMain fn) {
+            if (!fn) return nullptr;
+            __try { return fn(); }
+            __except (EXCEPTION_EXECUTE_HANDLER) { return nullptr; }
+        }
+
+        static void* SEH_GetTransform(FnGetTransform fn, void* cam) {
+            if (!fn || !cam) return nullptr;
+            __try { return fn(cam); }
+            __except (EXCEPTION_EXECUTE_HANDLER) { return nullptr; }
+        }
+
+        static bool SEH_GetPosition(FnGetPosition fn, Vector3* outPos, void* transform) {
+            if (!fn || !outPos || !transform) return false;
+            __try { fn(outPos, transform); return true; }
+            __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+        }
+
+        static bool SEH_SetPosition(FnSetPosition fn, void* transform, Vector3* pos) {
+            if (!fn || !transform || !pos) return false;
+            __try { fn(transform, pos); return true; }
+            __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+        }
+
+        static bool SEH_SetRotation(FnSetRotation fn, void* transform, Quaternion* rot) {
+            if (!fn || !transform || !rot) return false;
+            __try { fn(transform, rot); return true; }
+            __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+        }
 
         bool IsFlightKey(DWORD) {
             return g_Active && !g_Locked;
@@ -122,10 +153,9 @@ namespace FreeCamera {
             if (!g_Active || !g_CamTransform || !g_fnSetPosition || !g_fnSetRotation) return;
             Vector3 p = g_FreeCamPos;
             Quaternion q = QuatFromYawPitch(g_Yaw, g_Pitch);
-            __try {
-                g_fnSetPosition(g_CamTransform, &p);
-                g_fnSetRotation(g_CamTransform, &q);
-            } __except (EXCEPTION_EXECUTE_HANDLER) {}
+            
+            SEH_SetPosition(g_fnSetPosition, g_CamTransform, &p);
+            SEH_SetRotation(g_fnSetRotation, g_CamTransform, &q);
         }
 
         void ToggleActive() {
@@ -134,12 +164,11 @@ namespace FreeCamera {
                 g_Locked = false;
                 Vector3 realPos = g_LastRealPos;
                 if (g_fnGetPosition && g_CamTransform) {
-                    __try {
-                        Vector3 tmp;
-                        g_fnGetPosition(&tmp, g_CamTransform);
+                    Vector3 tmp;
+                    if (SEH_GetPosition(g_fnGetPosition, &tmp, g_CamTransform)) {
                         realPos = tmp;
                         g_LastRealPos = tmp;
-                    } __except (EXCEPTION_EXECUTE_HANDLER) {}
+                    }
                 }
                 g_FreeCamPos = realPos;
                 InterlockedExchange(&g_MouseDX, 0);
@@ -265,13 +294,11 @@ namespace FreeCamera {
         ULONGLONG now = GetTickCount64();
         if (now - lastRefresh > 2000) {
             lastRefresh = now;
-            __try {
-                void* cam = g_fnGetMain();
-                if (cam) {
-                    void* t = g_fnGetTransform(cam);
-                    if (t) g_CamTransform = t;
-                }
-            } __except (EXCEPTION_EXECUTE_HANDLER) {}
+            void* cam = SEH_GetMain(g_fnGetMain);
+            if (cam) {
+                void* t = SEH_GetTransform(g_fnGetTransform, cam);
+                if (t) g_CamTransform = t;
+            }
         }
 
         if (g_Active) ApplyNow();

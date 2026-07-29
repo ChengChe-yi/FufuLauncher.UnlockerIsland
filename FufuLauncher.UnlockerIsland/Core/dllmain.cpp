@@ -342,9 +342,15 @@ void MainWorker(HMODULE hMod) {
             uint32_t currentUID = Hooks::GetCurrentUID();
             
             LogToFile("currentUID = " + std::to_string(currentUID));
-
+            
             if (currentUID == 0) {
                 Sleep(2000);
+                continue;
+            }
+            
+            if (currentUID >= 600000000) {
+                LogToFile("OS/International server UID detected: " + std::to_string(currentUID) + ". Bypassing server check.");
+                Sleep(60 * 1000);
                 continue;
             }
 
