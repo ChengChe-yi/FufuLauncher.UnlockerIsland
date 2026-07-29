@@ -14,6 +14,7 @@
 #include <regex>
 #include <mutex>
 #include <atomic>
+#include <algorithm>
 
 #include "../Config/Config.h"
 #include "Hooks.h"
@@ -338,19 +339,25 @@ void MainWorker(HMODULE hMod) {
         
         std::thread(DialogWorker).detach();
 
+        char szExeName[MAX_PATH];
+        GetModuleFileNameA(NULL, szExeName, MAX_PATH);
+        std::string exePath(szExeName);
+        std::transform(exePath.begin(), exePath.end(), exePath.begin(), ::tolower);
+        bool isOS = (exePath.find("genshinimpact.exe") != std::string::npos);
+
         while (true) {
+            if (isOS) {
+                LogToFile("OS server detected via process name. Bypassing server check.");
+                Sleep(60 * 1000);
+                continue;
+            }
+
             uint32_t currentUID = Hooks::GetCurrentUID();
             
             LogToFile("currentUID = " + std::to_string(currentUID));
-            
+
             if (currentUID == 0) {
                 Sleep(2000);
-                continue;
-            }
-            
-            if (currentUID >= 600000000) {
-                LogToFile("OS/International server UID detected: " + std::to_string(currentUID) + ". Bypassing server check.");
-                Sleep(60 * 1000);
                 continue;
             }
 
