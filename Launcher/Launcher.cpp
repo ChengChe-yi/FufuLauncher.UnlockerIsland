@@ -1,4 +1,8 @@
-﻿#include <windows.h>
+﻿/*
+Copyright (c) FufuLauncher Dev Team. All rights reserved.
+Licensed under the AGPL-3.0 License.
+*/
+#include <windows.h>
 #include <shlwapi.h>
 #include <string>
 #include <fstream>

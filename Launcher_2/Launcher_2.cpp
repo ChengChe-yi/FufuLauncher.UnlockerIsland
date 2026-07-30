@@ -1,4 +1,8 @@
-﻿#include <windows.h>
+﻿/*
+Copyright (c) FufuLauncher Dev Team. All rights reserved.
+Licensed under the AGPL-3.0 License.
+*/
+#include <windows.h>
 #include <shlwapi.h>
 #include <iostream>
 #include <string>
@@ -77,7 +81,6 @@ bool InjectDll(HANDLE hProcess, HANDLE hThread, const std::wstring& dllPath) {
 
     LPTHREAD_START_ROUTINE loadLibrary = (LPTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "LoadLibraryW");
     
-    // 使用 QueueUserAPC 代替 CreateRemoteThread，确保在进程解除挂起后安全加载
     if (QueueUserAPC((PAPCFUNC)loadLibrary, hThread, (ULONG_PTR)remoteMem) == 0) {
         VirtualFreeEx(hProcess, remoteMem, 0, MEM_RELEASE);
         return false;

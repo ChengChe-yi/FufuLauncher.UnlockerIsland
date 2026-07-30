@@ -86,4 +86,13 @@
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
     <ImportGroup Label="ExtensionTargets">
     </ImportGroup>
+    <PropertyGroup>
+        <AutoBuildNumber>$([System.DateTime]::Now.ToString("yyMM"))</AutoBuildNumber>
+        <AutoRevisionNumber>$([System.DateTime]::Now.ToString("ddHH"))</AutoRevisionNumber>
+    </PropertyGroup>
+    <ItemGroup>
+        <ResourceCompile Include="Resource.rc">
+            <PreprocessorDefinitions>BUILD_NUMBER=$(AutoBuildNumber);REVISION_NUMBER=$(AutoRevisionNumber);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ResourceCompile>
+    </ItemGroup>
 </Project>

@@ -1,4 +1,8 @@
-﻿#pragma once
+﻿/*
+Copyright (c) FufuLauncher Dev Team. All rights reserved.
+Licensed under the AGPL-3.0 License.
+*/
+#pragma once
 #include <Windows.h>
 #include <string>
 

@@ -1,3 +1,7 @@
+/*
+Copyright (c) FufuLauncher Dev Team. All rights reserved.
+Licensed under the AGPL-3.0 License.
+*/
 #include "Network.h"
 #include "../Config/Config.h"
 

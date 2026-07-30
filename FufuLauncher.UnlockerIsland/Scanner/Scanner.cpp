@@ -1,4 +1,8 @@
-﻿#include "Scanner.h"
+﻿/*
+Copyright (c) FufuLauncher Dev Team. All rights reserved.
+Licensed under the AGPL-3.0 License.
+*/
+#include "Scanner.h"
 #include <Windows.h> 
 #include <Psapi.h>
 #include <algorithm>
