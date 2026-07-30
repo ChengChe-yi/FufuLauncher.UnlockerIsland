@@ -325,15 +325,11 @@ void WINAPI hk_SetActive(void* pThis, bool active) {
 
         if (name && name->chars) {
             if (cfg.disable_burst_blackscreen) {
-                if (wcsstr(name->chars, L"ElementalBurst")) {
+                if (wcsstr(name->chars, L"ElementalBurst") && (wcsstr(name->chars, L"Eff_Avatar"))) {
                     std::wcout << L"[BurstBlock] " << name->chars << std::endl;
                     return;
                 }
-                if (wcsstr(name->chars, L"Eff_Avatar_Girl") && (wcsstr(name->chars, L"Fog") || wcsstr(name->chars, L"fog"))) {
-                    std::wcout << L"[BurstBlock] " << name->chars << std::endl;
-                    return;
-                }
-                if (wcsstr(name->chars, L"Burst") && wcsstr(name->chars, L"Back") && !wcsstr(name->chars, L"Ca_Combat")) {
+                if (wcsstr(name->chars, L"Eff_Avatar") && (wcsstr(name->chars, L"Fog") || wcsstr(name->chars, L"fog"))) {
                     std::wcout << L"[BurstBlock] " << name->chars << std::endl;
                     return;
                 }
