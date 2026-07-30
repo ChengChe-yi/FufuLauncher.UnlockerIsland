@@ -187,5 +187,7 @@ namespace Config {
         g_Config.free_cam_move_speed = ReadFloat("FreeCamMoveSpeed", 8.0f, file);
         g_Config.free_cam_sprint_mult = ReadFloat("FreeCamSprintMult", 3.0f, file);
         g_Config.free_cam_mouse_sensitivity = ReadFloat("FreeCamMouseSensitivity", 0.12f, file);
+
+        g_Config.disable_burst_blackscreen = ReadInt("DisableBurstBlackscreen", 0, file);
     }
 }

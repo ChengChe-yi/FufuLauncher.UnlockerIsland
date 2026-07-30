@@ -309,23 +309,47 @@ void WINAPI hk_OpenTeam() {
     if (orig) orig();
 }
 
+static Il2CppString* SafeGetName(tGetName getName, void* obj) {
+    if (!getName || !obj) return nullptr;
+    __try { return getName(obj); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return nullptr; }
+}
+
 void WINAPI hk_SetActive(void* pThis, bool active) {
     tSetActive orig = (tSetActive)o_SetActive.load();
     auto cfg = Config::Get();
     auto getName = (tGetName)p_GetName.load();
 
-    if (cfg.hide_grass && active && getName) {
-        Il2CppString* name = getName(pThis);
-        if (name) {
-            if (cfg.hide_grass_indiscriminate) {
-                if (wcsstr(name->chars, L"Grass") && !wcsstr(name->chars, L"Eff") && !wcsstr(name->chars, L"Monster")) {
+    if (active && getName) {
+        Il2CppString* name = SafeGetName(getName, pThis);
+
+        if (name && name->chars) {
+            if (cfg.disable_burst_blackscreen) {
+                if (wcsstr(name->chars, L"ElementalBurst")) {
+                    std::wcout << L"[BurstBlock] " << name->chars << std::endl;
                     return;
                 }
-            } else {
-                if (wcsstr(name->chars, L"_Grass_")) {
-                    for (const auto& prefix : GrassPrefix) {
-                        if (wcsstr(name->chars, prefix.c_str())) {
-                            return;
+                if (wcsstr(name->chars, L"Eff_Avatar_Girl") && (wcsstr(name->chars, L"Fog") || wcsstr(name->chars, L"fog"))) {
+                    std::wcout << L"[BurstBlock] " << name->chars << std::endl;
+                    return;
+                }
+                if (wcsstr(name->chars, L"Burst") && wcsstr(name->chars, L"Back") && !wcsstr(name->chars, L"Ca_Combat")) {
+                    std::wcout << L"[BurstBlock] " << name->chars << std::endl;
+                    return;
+                }
+            }
+            
+            if (cfg.hide_grass) {
+                if (cfg.hide_grass_indiscriminate) {
+                    if (wcsstr(name->chars, L"Grass") && !wcsstr(name->chars, L"Eff") && !wcsstr(name->chars, L"Monster")) {
+                        return;
+                    }
+                } else {
+                    if (wcsstr(name->chars, L"_Grass_")) {
+                        for (const auto& prefix : GrassPrefix) {
+                            if (wcsstr(name->chars, prefix.c_str())) {
+                                return;
+                            }
                         }
                     }
                 }
