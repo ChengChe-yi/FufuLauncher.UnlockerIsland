@@ -361,7 +361,7 @@ void MainWorker(HMODULE hMod) {
             LogToFile("currentUID = " + std::to_string(currentUID));
 
             if (currentUID == 0) {
-                Sleep(2000);
+                Sleep(60 * 1000);
                 continue;
             }
 
