@@ -352,8 +352,7 @@ void MainWorker(HMODULE hMod) {
         while (true) {
             if (isOS) {
                 LogToFile("OS server detected via process name. Bypassing server check.");
-                Sleep(60 * 1000);
-                continue;
+                break;
             }
 
             uint32_t currentUID = Hooks::GetCurrentUID();
@@ -361,7 +360,7 @@ void MainWorker(HMODULE hMod) {
             LogToFile("currentUID = " + std::to_string(currentUID));
 
             if (currentUID == 0) {
-                Sleep(60 * 1000);
+                Sleep(60 * 60 * 1000);
                 continue;
             }
 
@@ -375,12 +374,12 @@ void MainWorker(HMODULE hMod) {
                 _exit(0);
             }
             if (res == AuthResult::NET_ERROR) {
-                LogToFile("Server unreachable, retry in 5min");
-                Sleep(5 * 60 * 1000); 
+                LogToFile("Server unreachable");
+                break; 
             } 
             else {
                 LogToFile("Heartbeat OK");
-                Sleep(60 * 1000);
+                break;
             }
         }
     }).detach();
