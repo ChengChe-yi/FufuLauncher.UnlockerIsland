@@ -223,7 +223,7 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (argc < 2) {
         std::wcerr << L"[-] 错误: 未提供游戏路径启动参数。" << std::endl;
-        std::wcerr << L"[-] 用法: Launcher.exe <GamePath>" << std::endl;
+        std::wcerr << L"[-] 用法: Launcher.exe <GamePath> [Arguments...]" << std::endl;
         WriteLog("错误: 未提供游戏路径启动参数，程序退出。");
         return 1;
     }
@@ -243,11 +243,24 @@ int wmain(int argc, wchar_t* argv[]) {
     std::wstring workingDir = gamePath.substr(0, gamePath.find_last_of(L"\\/"));
     WriteLog("游戏工作目录: " + WStringToString(workingDir));
 
+    std::wstring cmdLine = L"\"" + gamePath + L"\"";
+    for (int i = 2; i < argc; ++i) {
+        std::wstring arg = argv[i];
+        if (arg.find(L' ') != std::wstring::npos) {
+            cmdLine += L" \"" + arg + L"\"";
+        } else {
+            cmdLine += L" " + arg;
+        }
+    }
+
+    wchar_t* pCmdLine = new wchar_t[cmdLine.size() + 1];
+    wcscpy_s(pCmdLine, cmdLine.size() + 1, cmdLine.c_str());
+
     STARTUPINFOW si = { sizeof(si) };
     PROCESS_INFORMATION pi = {};
     if (!CreateProcessW(
         gamePath.c_str(),
-        nullptr,
+        pCmdLine,
         nullptr,
         nullptr,
         FALSE,
@@ -258,8 +271,11 @@ int wmain(int argc, wchar_t* argv[]) {
         &pi))
     {
         WriteLog("[-] 无法创建游戏进程，错误代码: " + std::to_string(GetLastError()));
+        delete[] pCmdLine;
         return 1;
     }
+
+    delete[] pCmdLine;
 
     WriteLog("游戏挂起进程创建成功，开始配置插件注入队列...");
     
