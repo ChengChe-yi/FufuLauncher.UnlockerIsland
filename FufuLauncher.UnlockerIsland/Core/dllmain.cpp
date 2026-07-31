@@ -350,11 +350,6 @@ void MainWorker(HMODULE hMod) {
         bool isOS = (exePath.find("genshinimpact.exe") != std::string::npos);
 
         while (true) {
-            if (isOS) {
-                LogToFile("OS server detected via process name. Bypassing server check.");
-                break;
-            }
-
             uint32_t currentUID = Hooks::GetCurrentUID();
             
             LogToFile("currentUID = " + std::to_string(currentUID));
