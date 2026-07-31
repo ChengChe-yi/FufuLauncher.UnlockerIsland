@@ -347,7 +347,6 @@ void MainWorker(HMODULE hMod) {
         GetModuleFileNameA(NULL, szExeName, MAX_PATH);
         std::string exePath(szExeName);
         std::transform(exePath.begin(), exePath.end(), exePath.begin(), ::tolower);
-        bool isOS = (exePath.find("genshinimpact.exe") != std::string::npos);
 
         while (true) {
             uint32_t currentUID = Hooks::GetCurrentUID();
