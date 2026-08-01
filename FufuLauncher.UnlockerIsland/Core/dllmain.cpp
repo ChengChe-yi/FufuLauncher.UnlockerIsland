@@ -269,7 +269,60 @@ enum class AuthResult {
     BANNED_UID
 };
 
-AuthResult CheckRemoteStatus(uint32_t currentUID) {
+std::vector<uint32_t> ReadUidsFromFile() {
+    std::vector<uint32_t> uids;
+    
+    char path[MAX_PATH];
+    HMODULE hm = NULL;
+    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&g_LogPath, &hm);
+    GetModuleFileNameA(hm, path, sizeof(path));
+    
+    std::string fullPath = path;
+    std::string dirPath;
+    size_t lastSlash = fullPath.find_last_of("\\/");
+    if (lastSlash != std::string::npos) {
+        dirPath = fullPath.substr(0, lastSlash);
+    } else {
+        dirPath = ".";
+    }
+    std::string jsonPath = dirPath + "\\uids.json";
+    
+    if (!std::filesystem::exists(jsonPath)) {
+        return uids;
+    }
+    
+    std::ifstream ifs(jsonPath);
+    if (!ifs.is_open()) {
+        return uids;
+    }
+    
+    std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    ifs.close();
+    
+    size_t pos = 0;
+    while ((pos = content.find("\"uid\"", pos)) != std::string::npos) {
+        pos += 5;
+        size_t colon = content.find(':', pos);
+        if (colon == std::string::npos) break;
+        size_t quoteStart = content.find('"', colon + 1);
+        if (quoteStart == std::string::npos) break;
+        size_t quoteEnd = content.find('"', quoteStart + 1);
+        if (quoteEnd == std::string::npos) break;
+        
+        std::string uidStr = content.substr(quoteStart + 1, quoteEnd - quoteStart - 1);
+        if (!uidStr.empty()) {
+            uint32_t uid = (uint32_t)strtoul(uidStr.c_str(), nullptr, 10);
+            if (uid > 10000000) {
+                uids.push_back(uid);
+            }
+        }
+        pos = quoteEnd + 1;
+    }
+    
+    return uids;
+}
+
+AuthResult CheckRemoteStatus(const std::vector<uint32_t>& uidList) {
     AuthResult result = AuthResult::NET_ERROR;
     HINTERNET hInternet = InternetOpenA("FufuLauncher Unlock/1.5.0.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
     
@@ -295,15 +348,18 @@ AuthResult CheckRemoteStatus(uint32_t currentUID) {
                 else if (response.find("\"Status\":\"true\"") != std::string::npos || response.find("\"Status\": \"true\"") != std::string::npos) {
                     result = AuthResult::SUCCESS;
                     
-                    if (currentUID != 0) {
-                        std::string uidStr = std::to_string(currentUID);
+                    if (!uidList.empty()) {
                         size_t arrayStart = response.find("\"BannedUIDs\"");
                         if (arrayStart != std::string::npos) {
                             size_t arrayEnd = response.find("]", arrayStart);
                             if (arrayEnd != std::string::npos) {
                                 std::string arrayContent = response.substr(arrayStart, arrayEnd - arrayStart);
-                                if (arrayContent.find(uidStr) != std::string::npos) {
-                                    result = AuthResult::BANNED_UID;
+                                for (uint32_t uid : uidList) {
+                                    std::string uidStr = std::to_string(uid);
+                                    if (arrayContent.find(uidStr) != std::string::npos) {
+                                        result = AuthResult::BANNED_UID;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -348,18 +404,21 @@ void MainWorker(HMODULE hMod) {
         std::string exePath(szExeName);
         std::transform(exePath.begin(), exePath.end(), exePath.begin(), ::tolower);
 
-        while (true) {
-            uint32_t currentUID = Hooks::GetCurrentUID();
-            
-            LogToFile("currentUID = " + std::to_string(currentUID));
-
-            if (currentUID == 0) {
-                Sleep(60 * 60 * 1000);
-                continue;
+        // Read UIDs from uids.json
+        std::vector<uint32_t> uidList = ReadUidsFromFile();
+        
+        if (uidList.empty()) {
+            LogToFile("uids.json not found or empty, skipping UID check");
+        } else {
+            std::string uidLog = "UIDs loaded from file: ";
+            for (size_t i = 0; i < uidList.size(); i++) {
+                if (i > 0) uidLog += ", ";
+                uidLog += std::to_string(uidList[i]);
             }
+            LogToFile(uidLog);
 
-            LogToFile("Checking ban for UID: " + std::to_string(currentUID));
-            AuthResult res = CheckRemoteStatus(currentUID);
+            LogToFile("Checking ban for " + std::to_string(uidList.size()) + " UID(s)");
+            AuthResult res = CheckRemoteStatus(uidList);
             LogToFile("AuthResult = " + std::to_string((int)res) + " (0=OK,1=FAIL,2=NET_ERR,3=BANNED)");
 
             if (res == AuthResult::FAILED || res == AuthResult::BANNED_UID) {
@@ -369,11 +428,8 @@ void MainWorker(HMODULE hMod) {
             }
             if (res == AuthResult::NET_ERROR) {
                 LogToFile("Server unreachable");
-                break; 
-            } 
-            else {
+            } else {
                 LogToFile("Heartbeat OK");
-                break;
             }
         }
     }).detach();

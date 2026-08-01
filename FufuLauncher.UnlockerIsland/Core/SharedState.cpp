@@ -47,7 +47,6 @@ ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 HWND g_hGameWindow_ImGui = nullptr;
 tResizeBuffers o_ResizeBuffers = nullptr;
 tPresent1 o_Present1 = nullptr;
-uint32_t g_CurrentUID = 0;
 
 bool g_ShowCoordWindow = false;
 

@@ -104,7 +104,6 @@ extern ID3D11RenderTargetView* g_mainRenderTargetView;
 extern HWND g_hGameWindow_ImGui;
 extern tResizeBuffers o_ResizeBuffers;
 extern tPresent1 o_Present1;
-extern uint32_t g_CurrentUID;
 
 extern bool g_ShowCoordWindow;
 

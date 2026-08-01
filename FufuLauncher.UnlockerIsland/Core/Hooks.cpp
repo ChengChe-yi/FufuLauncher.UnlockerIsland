@@ -129,66 +129,6 @@ static void* GetGetActiveAddr() {
     return addr;
 }
 
-void UpdateRealUID() {
-    if (g_CurrentUID != 0) return;
-
-    static ULONGLONG last_check_time = 0;
-    ULONGLONG current_time = GetTickCount64();
-    if (current_time - last_check_time < 500) return;
-    last_check_time = current_time;
-
-    uintptr_t base = (uintptr_t)GetModuleHandle(NULL);
-    if (!base) return;
-
-    auto _FindString = (tFindString)p_FindString.load();
-    auto _FindGameObject = (tFindGameObject)p_FindGameObject.load();
-
-    uintptr_t getTextOffsetVal = 0;
-    uintptr_t getComponentOffsetVal = 0;
-    std::stringstream ssText, ssComp;
-    ssText << std::hex << Offsets::GetText;
-    ssText >> getTextOffsetVal;
-    ssComp << std::hex << Offsets::GetComponent;
-    ssComp >> getComponentOffsetVal;
-
-    if (getTextOffsetVal == 0 || getComponentOffsetVal == 0) return;
-
-    auto _GetText = (tGetText)(base + getTextOffsetVal);
-    auto _GetComponent = (tGetComponent)(base + getComponentOffsetVal);
-
-    if (!_FindString || !_FindGameObject || !_GetText || !_GetComponent) return;
-
-    SafeInvoke([&] {
-        Il2CppString* uidStrObj = _FindString(GameStrings::UIDPathWatermark);
-        Il2CppString* textStrObj = _FindString("Text");
-
-        if (uidStrObj && textStrObj) {
-            void* uidObj = _FindGameObject(uidStrObj);
-            if (uidObj) {
-                void* textComponent = _GetComponent(uidObj, textStrObj);
-                if (textComponent) {
-                    Il2CppString* textValue = _GetText(textComponent);
-                    if (textValue && textValue->chars) {
-                        std::wstring rawStr = textValue->chars;
-                        std::wstring numStr = L"";
-                        for (wchar_t c : rawStr) {
-                            if (iswdigit(c)) {
-                                numStr += c;
-                            }
-                        }
-                        if (!numStr.empty()) {
-                            int parsedUid = _wtoi(numStr.c_str());
-                            if (parsedUid > 10000000) {
-                                g_CurrentUID = parsedUid;
-                                std::cout << "[+] UID: " << parsedUid << '\n';
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
 
 static void ClockPageOk_SafeLogic(void* pThis, bool& out_handled) {
     out_handled = false;
@@ -332,7 +272,6 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
 
     if (frameCounter >= 100) {
         frameCounter = 0;
-        UpdateRealUID();
         UpdateHideUID();
         UpdateHideMainUI();
         UpdateOpenMap();
@@ -639,9 +578,6 @@ void Hooks::TriggerReloadPopup() {
     g_RequestReloadPopup.store(true);
 }
 
-uint32_t Hooks::GetCurrentUID() {
-    return g_CurrentUID;
-}
 
 void Hooks::Uninit() {}
 void Hooks::UpdateVisuals() {}
