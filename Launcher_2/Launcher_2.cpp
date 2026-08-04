@@ -86,9 +86,6 @@ bool InjectDll(HANDLE hProcess, HANDLE hThread, const std::wstring& dllPath) {
         return false;
     }
 
-    // 关键修正：此处禁止调用 VirtualFreeEx。
-    // 由于 QueueUserAPC 是异步执行，目标进程将在 ResumeThread 之后读取此内存，
-    // 若提前释放，会导致读取失效内存从而触发访问冲突。
     return true;
 }
 
