@@ -324,17 +324,6 @@ void WINAPI hk_SetActive(void* pThis, bool active) {
         Il2CppString* name = SafeGetName(getName, pThis);
 
         if (name && name->chars) {
-            if (cfg.disable_burst_blackscreen) {
-                if (wcsstr(name->chars, L"ElementalBurst") && (wcsstr(name->chars, L"Eff_Avatar"))) {
-                    std::wcout << L"[BurstBlock] " << name->chars << std::endl;
-                    return;
-                }
-                if (wcsstr(name->chars, L"Eff_Avatar") && (wcsstr(name->chars, L"Fog") || wcsstr(name->chars, L"fog"))) {
-                    std::wcout << L"[BurstBlock] " << name->chars << std::endl;
-                    return;
-                }
-            }
-            
             if (cfg.hide_grass) {
                 if (cfg.hide_grass_indiscriminate) {
                     if (wcsstr(name->chars, L"Grass") && !wcsstr(name->chars, L"Eff") && !wcsstr(name->chars, L"Monster")) {
