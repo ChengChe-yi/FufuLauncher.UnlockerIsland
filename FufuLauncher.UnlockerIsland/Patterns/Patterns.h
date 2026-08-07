@@ -80,6 +80,10 @@ namespace Patterns {
         "0F 57 C0 0F 29 44 24 30 48 8D 4C 24 20 48 8D 54 24 30 E8 ? ? ? ? 0F 28 44 24 30 0F 29 44 24 40 "
         "48 8D 54 24 40 48 89 F1 E8 ? ? ? ? 90 48 83 C4 50 5E C3 E9 ? ? ? ? 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 81 EC 80 00 00 00";
 
+    inline constexpr const char* FreeCamTransformGetRotation =
+        "56 48 83 EC 20 48 89 CE 0F 57 C0 0F 11 01 48 89 D1 48 89 F2 E8 ? ? ? ? "
+        "48 89 F0 48 83 C4 20 5E C3 66 66 66 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50";
+
     inline constexpr const char* FreeCamTransformGetPosition =
         "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 48 89 F2 E8 ? ? ? ? "
         "48 89 F0 48 83 C4 20 5E C3 66 0F 1F 44 00 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "

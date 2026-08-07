@@ -18,7 +18,17 @@ struct ModConfig {
     bool enable_fov_override = false;
     
     float fov_value = 45.0f;
-    
+
+    bool enable_camera_offset = false;
+
+    float camera_offset_x = 0.0f;
+
+    float camera_offset_z = 0.0f;
+
+    float camera_offset_y = 0.0f;
+
+    float camera_height_transition_speed = 8.0f;
+
     bool use_touch_screen = false;
     
     bool hide_quest_banner = false;
