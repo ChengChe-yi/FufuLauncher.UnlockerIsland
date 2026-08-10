@@ -262,6 +262,43 @@ static bool CheckCanUseShortcut() {
     return true;
 }
 
+static bool IsActiveGameObject(const char* name) {
+    auto findString = (tFindString)p_FindString.load();
+    auto findGameObject = (tFindGameObject)p_FindGameObject.load();
+    auto getActive = (tGetActive)p_GetActive.load();
+    if (!IsValid(findString) || !IsValid(findGameObject)) return false;
+
+    bool active = false;
+    SafeInvoke([&] {
+        Il2CppString* objectName = findString(name);
+        if (!objectName) return;
+
+        void* gameObject = findGameObject(objectName);
+        if (!gameObject) return;
+
+        // Unity's GameObject.Find only returns active objects. Keep the
+        // explicit get_active check when it is available as an extra guard.
+        active = !IsValid(getActive) || getActive(gameObject);
+    });
+    return active;
+}
+
+static bool IsDialogueOrCutsceneActive() {
+    // GameObject.Find is relatively expensive, so poll the two UI roots at a
+    // modest rate and reuse the result between ChangeFOV calls.
+    static ULONGLONG lastCheck = 0;
+    static bool cachedResult = false;
+
+    ULONGLONG now = GetTickCount64();
+    if (lastCheck != 0 && now - lastCheck < 50) return cachedResult;
+    lastCheck = now;
+
+    cachedResult = IsActiveGameObject("TalkDialog") ||
+        IsActiveGameObject("TalkDialogV1") ||
+        IsActiveGameObject("InLevelCutScenePage");
+    return cachedResult;
+}
+
 int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     if (!g_GameUpdateInit.load()) g_GameUpdateInit.store(true);
 
@@ -331,14 +368,18 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
         if (IsValid(setFps)) SafeInvoke([&]() { setFps(cfg.selected_fps); });
     }
 
-    bool pass_check = !cfg.enable_fov_limit_check || (value > 30.0f);
+    // Preserve the game's incoming FOV before an override changes it. The
+    // existing <= 30 threshold is the plugin's stable aiming-camera signal.
+    bool isAimingCamera = value <= 30.0f;
+    bool pass_check = !cfg.enable_fov_limit_check || !isAimingCamera;
     if (pass_check && cfg.enable_fov_override) {
         value = cfg.fov_value;
     }
 
     auto orig = (tChangeFov)o_ChangeFov.load();
     int32_t ret = orig ? orig(__this, value) : 0;
-    FreeCamera::Tick();
+    bool dialogueOrCutsceneActive = IsDialogueOrCutsceneActive();
+    FreeCamera::Tick(!isAimingCamera && !dialogueOrCutsceneActive);
     return ret;
 }
 

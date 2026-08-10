@@ -9,6 +9,8 @@ Licensed under the AGPL-3.0 License.
 #include "../Patterns/Patterns.h"
 #include "../Scanner/Scanner.h"
 
+#include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <iostream>
 #include <Windows.h>
@@ -46,21 +48,34 @@ namespace FreeCamera {
         typedef void  (__fastcall *FnSetPosition)(void*, Vector3*);
         typedef void  (__fastcall *FnSetRotation)(void*, Quaternion*);
         typedef void  (__fastcall *FnGetPosition)(Vector3*, void*);
+        typedef void  (__fastcall *FnGetRotation)(Quaternion*, void*);
 
         FnGetMain      g_fnGetMain = nullptr;
         FnGetTransform g_fnGetTransform = nullptr;
         FnSetPosition  g_fnSetPosition = nullptr;
         FnSetRotation  g_fnSetRotation = nullptr;
         FnGetPosition  g_fnGetPosition = nullptr;
+        FnGetRotation  g_fnGetRotation = nullptr;
 
         void* g_CamTransform = nullptr;
-        volatile bool g_Ready = false;
+        std::atomic<bool> g_Ready{ false };
 
         volatile bool g_Active = false;
         volatile bool g_Locked = false;
         volatile float g_Yaw = 0.0f, g_Pitch = 0.0f;
         Vector3 g_FreeCamPos = { 0, 0, 0 };
         Vector3 g_LastRealPos = { 0, 0, 0 };
+        std::atomic<bool> g_AllowGameplayCameraTweaks{ false };
+
+        bool g_HeightStateValid = false;
+        void* g_HeightTransform = nullptr;
+        Vector3 g_LastHeightBase = { 0, 0, 0 };
+        Vector3 g_LastHeightOutput = { 0, 0, 0 };
+        Vector3 g_CurrentCameraOffset = { 0, 0, 0 };
+        ULONGLONG g_LastHeightTransitionTick = 0;
+        bool g_ShoulderBasisValid = false;
+        Vector3 g_LastShoulderRight = { 1, 0, 0 };
+        Vector3 g_LastShoulderBack = { 0, 0, -1 };
 
         volatile LONG g_MouseDX = 0;
         volatile LONG g_MouseDY = 0;
@@ -86,6 +101,12 @@ namespace FreeCamera {
             __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
         }
 
+        static bool SEH_GetRotation(FnGetRotation fn, Quaternion* outRot, void* transform) {
+            if (!fn || !outRot || !transform) return false;
+            __try { fn(outRot, transform); return true; }
+            __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+        }
+
         static bool SEH_SetPosition(FnSetPosition fn, void* transform, Vector3* pos) {
             if (!fn || !transform || !pos) return false;
             __try { fn(transform, pos); return true; }
@@ -96,6 +117,143 @@ namespace FreeCamera {
             if (!fn || !transform || !rot) return false;
             __try { fn(transform, rot); return true; }
             __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+        }
+
+        bool NearlyEqual(float a, float b) {
+            return fabsf(a - b) <= 0.0005f;
+        }
+
+        bool NearlyEqual(const Vector3& a, const Vector3& b) {
+            return NearlyEqual(a.x, b.x) &&
+                   NearlyEqual(a.y, b.y) &&
+                   NearlyEqual(a.z, b.z);
+        }
+
+        void ResetHeightOffset(bool restoreIfUntouched) {
+            if (!g_HeightStateValid) return;
+
+            if (restoreIfUntouched && g_HeightTransform == g_CamTransform &&
+                g_fnGetPosition && g_fnSetPosition) {
+                Vector3 current{};
+                if (SEH_GetPosition(g_fnGetPosition, &current, g_CamTransform) &&
+                    NearlyEqual(current, g_LastHeightOutput)) {
+                    Vector3 original = g_LastHeightBase;
+                    SEH_SetPosition(g_fnSetPosition, g_CamTransform, &original);
+                }
+            }
+
+            g_HeightStateValid = false;
+            g_HeightTransform = nullptr;
+        }
+
+        Vector3 AdvanceCameraOffset(const Vector3& targetOffset, float transitionSpeed) {
+            ULONGLONG now = GetTickCount64();
+            float deltaSeconds = 1.0f / 60.0f;
+            if (g_LastHeightTransitionTick != 0 &&
+                now > g_LastHeightTransitionTick) {
+                deltaSeconds = static_cast<float>(
+                    now - g_LastHeightTransitionTick) / 1000.0f;
+                deltaSeconds = std::clamp(deltaSeconds, 0.0f, 0.1f);
+            }
+            g_LastHeightTransitionTick = now;
+
+            if (transitionSpeed < 0.1f) {
+                transitionSpeed = 0.1f;
+            }
+            float blend = 1.0f - expf(-transitionSpeed * deltaSeconds);
+            g_CurrentCameraOffset.x +=
+                (targetOffset.x - g_CurrentCameraOffset.x) * blend;
+            g_CurrentCameraOffset.y +=
+                (targetOffset.y - g_CurrentCameraOffset.y) * blend;
+            g_CurrentCameraOffset.z +=
+                (targetOffset.z - g_CurrentCameraOffset.z) * blend;
+            if (NearlyEqual(g_CurrentCameraOffset, targetOffset)) {
+                g_CurrentCameraOffset = targetOffset;
+            }
+            return g_CurrentCameraOffset;
+        }
+
+        bool UpdateShoulderBasis() {
+            Quaternion rotation{};
+            if (!SEH_GetRotation(g_fnGetRotation, &rotation, g_CamTransform)) {
+                return g_ShoulderBasisValid;
+            }
+
+            float normSquared = rotation.x * rotation.x +
+                rotation.y * rotation.y + rotation.z * rotation.z +
+                rotation.w * rotation.w;
+            if (!std::isfinite(normSquared) || normSquared < 0.25f ||
+                normSquared > 4.0f) {
+                return g_ShoulderBasisValid;
+            }
+
+            float inverseNorm = 1.0f / sqrtf(normSquared);
+            rotation.x *= inverseNorm;
+            rotation.y *= inverseNorm;
+            rotation.z *= inverseNorm;
+            rotation.w *= inverseNorm;
+
+            Vector3 right = QuatRotateVec(rotation, { 1, 0, 0 });
+            right.y = 0.0f;
+            float horizontalLength = sqrtf(right.x * right.x + right.z * right.z);
+            if (!std::isfinite(horizontalLength) || horizontalLength < 0.001f) {
+                return g_ShoulderBasisValid;
+            }
+            right.x /= horizontalLength;
+            right.z /= horizontalLength;
+
+            g_LastShoulderRight = right;
+            g_LastShoulderBack = { right.z, 0.0f, -right.x };
+            g_ShoulderBasisValid = true;
+            return true;
+        }
+
+        Vector3 ResolveWorldCameraOffset(const Vector3& cameraOffset) {
+            Vector3 worldOffset{ 0.0f, cameraOffset.y, 0.0f };
+            if (UpdateShoulderBasis()) {
+                worldOffset.x += g_LastShoulderRight.x * cameraOffset.x +
+                    g_LastShoulderBack.x * cameraOffset.z;
+                worldOffset.z += g_LastShoulderRight.z * cameraOffset.x +
+                    g_LastShoulderBack.z * cameraOffset.z;
+            }
+            return worldOffset;
+        }
+
+        void ApplyGameplayCameraOffset(const Vector3& cameraOffset) {
+            if (NearlyEqual(cameraOffset, { 0, 0, 0 })) {
+                ResetHeightOffset(true);
+                return;
+            }
+
+            if (!g_CamTransform || !g_fnGetPosition || !g_fnSetPosition) return;
+
+            if (g_HeightStateValid && g_HeightTransform != g_CamTransform) {
+                ResetHeightOffset(false);
+            }
+
+            Vector3 current{};
+            if (!SEH_GetPosition(g_fnGetPosition, &current, g_CamTransform)) return;
+
+            Vector3 base = current;
+            if (g_HeightStateValid && g_HeightTransform == g_CamTransform &&
+                NearlyEqual(current, g_LastHeightOutput)) {
+                // ChangeFOV can run more than once before the game updates the
+                // camera transform. Reuse the unmodified base to avoid adding
+                // the configured height repeatedly in the same frame.
+                base = g_LastHeightBase;
+            }
+
+            Vector3 worldOffset = ResolveWorldCameraOffset(cameraOffset);
+            Vector3 adjusted = base;
+            adjusted.x += worldOffset.x;
+            adjusted.y += worldOffset.y;
+            adjusted.z += worldOffset.z;
+            if (SEH_SetPosition(g_fnSetPosition, g_CamTransform, &adjusted)) {
+                g_HeightStateValid = true;
+                g_HeightTransform = g_CamTransform;
+                g_LastHeightBase = base;
+                g_LastHeightOutput = adjusted;
+            }
         }
 
         bool IsFlightKey(DWORD) {
@@ -207,7 +365,8 @@ namespace FreeCamera {
                 Sleep(10);
                 auto& cfg = Config::Get();
 
-                if (!cfg.enable_free_cam) {
+                if (!g_Ready.load(std::memory_order_relaxed) ||
+                    !cfg.enable_free_cam) {
                     if (g_Active) ToggleActive();
                     prevToggle = false;
                     prevLock = false;
@@ -271,9 +430,10 @@ namespace FreeCamera {
         void* aGetP = Scanner::ScanMainMod(Patterns::FreeCamTransformGetPosition);
         void* aSetP = Scanner::ScanMainMod(Patterns::FreeCamTransformSetPosition);
         void* aSetR = Scanner::ScanMainMod(Patterns::FreeCamTransformSetRotation);
+        void* aGetR = Scanner::ScanMainMod(Patterns::FreeCamTransformGetRotation);
 
         if (!aMain || !aTf || !aGetP || !aSetP || !aSetR) {
-            std::cout << "   -> [ERR] FreeCamera patterns not found, feature disabled." << std::endl;
+            std::cout << "   -> [ERR] FreeCamera patterns not found; free camera and follow-camera offset are disabled." << std::endl;
             return;
         }
 
@@ -282,17 +442,44 @@ namespace FreeCamera {
         g_fnGetPosition  = reinterpret_cast<FnGetPosition>(aGetP);
         g_fnSetPosition  = reinterpret_cast<FnSetPosition>(aSetP);
         g_fnSetRotation  = reinterpret_cast<FnSetRotation>(aSetR);
+        g_fnGetRotation  = reinterpret_cast<FnGetRotation>(aGetR);
 
         g_KbHook = SetWindowsHookExA(WH_KEYBOARD_LL, KbProc, GetModuleHandleA(nullptr), 0);
+        g_Ready.store(true, std::memory_order_relaxed);
+        std::cout << "   -> FreeCamera and follow-camera offset ready." << std::endl;
+        if (!g_fnGetRotation) {
+            std::cout << "   -> [WARN] Camera rotation pattern not found; X/Z shoulder offsets are disabled." << std::endl;
+        }
 
+        // Free-camera raw mouse input still needs the Unity window procedure.
         CreateThread(nullptr, 0, InputThread, nullptr, 0, nullptr);
-
-        g_Ready = true;
-        std::cout << "   -> FreeCamera Ready." << std::endl;
+        std::cout << "   -> Free-camera input window hook scheduled." << std::endl;
     }
 
-    void Tick() {
-        if (!g_Ready) return;
+    void Tick(bool allowGameplayCameraTweaks) {
+        auto& cfg = Config::Get();
+        bool freeCameraActive = g_Active;
+        bool allowNormalCamera = cfg.enable_camera_offset &&
+            allowGameplayCameraTweaks && !freeCameraActive;
+        Vector3 targetOffset{ 0.0f, 0.0f, 0.0f };
+        if (allowNormalCamera) {
+            targetOffset = {
+                cfg.camera_offset_x,
+                cfg.camera_offset_y,
+                cfg.camera_offset_z
+            };
+        }
+        Vector3 currentOffset = AdvanceCameraOffset(
+            targetOffset, cfg.camera_height_transition_speed);
+
+        g_AllowGameplayCameraTweaks.store(
+            allowNormalCamera,
+            std::memory_order_relaxed);
+        if (!g_Ready.load(std::memory_order_relaxed)) {
+            g_CurrentCameraOffset = { 0.0f, 0.0f, 0.0f };
+            g_LastHeightTransitionTick = 0;
+            return;
+        }
 
         static ULONGLONG lastRefresh = 0;
         ULONGLONG now = GetTickCount64();
@@ -305,6 +492,11 @@ namespace FreeCamera {
             }
         }
 
-        if (g_Active) ApplyNow();
+        if (g_Active) {
+            ResetHeightOffset(true);
+            ApplyNow();
+        } else {
+            ApplyGameplayCameraOffset(currentOffset);
+        }
     }
 }

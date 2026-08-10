@@ -114,7 +114,31 @@ namespace Config {
         g_Config.enable_fov_override = ReadInt("FovUnlock", 0, file);
         
         g_Config.fov_value = ReadFloat("FovValue", 45.0f, file);
-        
+
+        g_Config.enable_camera_offset = ReadInt("EnableCameraOffset", 0, file);
+
+        g_Config.camera_offset_x = ReadFloat("CameraOffsetX", 0.0f, file);
+        g_Config.camera_offset_z = ReadFloat("CameraOffsetZ", 0.0f, file);
+        g_Config.camera_offset_y = ReadFloat("CameraOffsetY",
+            ReadFloat("CameraHeightOffset", 0.0f, file), file);
+
+        auto clampCameraOffset = [](float value) {
+            if (value < -5.0f) return -5.0f;
+            if (value > 5.0f) return 5.0f;
+            return value;
+        };
+        g_Config.camera_offset_x = clampCameraOffset(g_Config.camera_offset_x);
+        g_Config.camera_offset_z = clampCameraOffset(g_Config.camera_offset_z);
+        g_Config.camera_offset_y = clampCameraOffset(g_Config.camera_offset_y);
+
+        g_Config.camera_height_transition_speed =
+            ReadFloat("CameraHeightTransitionSpeed", 8.0f, file);
+        if (g_Config.camera_height_transition_speed < 0.1f) {
+            g_Config.camera_height_transition_speed = 0.1f;
+        } else if (g_Config.camera_height_transition_speed > 30.0f) {
+            g_Config.camera_height_transition_speed = 30.0f;
+        }
+
         g_Config.hide_quest_banner = ReadInt("HideQuestBanner", 0, file);
         
         g_Config.hide_uid = ReadInt("HideUID", 0, file);
