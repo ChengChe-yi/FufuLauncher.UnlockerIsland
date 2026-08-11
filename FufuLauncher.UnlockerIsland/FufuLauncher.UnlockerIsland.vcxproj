@@ -153,6 +153,8 @@
         <ClInclude Include="UnderwaterMask\UnderwaterMask.h" />
         <ClInclude Include="Visual\Visual.h" />
         <ClInclude Include="FreeCamera\FreeCamera.h" />
+        <ClInclude Include="Camera\Camera.h" />
+        <ClInclude Include="CameraOffset\CameraOffset.h" />
         <ClInclude Include="il2cpp\Il2CppArray.h" />
         <ClInclude Include="il2cpp\Il2CppList.h" />
         <ClInclude Include="il2cpp\Il2CppObject.h" />
@@ -174,6 +176,8 @@
         <ClCompile Include="UnderwaterMask\UnderwaterMask.cpp" />
         <ClCompile Include="Visual\Visual.cpp" />
         <ClCompile Include="FreeCamera\FreeCamera.cpp" />
+        <ClCompile Include="Camera\Camera.cpp" />
+        <ClCompile Include="CameraOffset\CameraOffset.cpp" />
     </ItemGroup>
     <ItemGroup>
         <Content Include="MinHook\libMinHook.x64.lib" />
