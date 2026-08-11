@@ -68,6 +68,11 @@ static bool SEH_Read32(uintptr_t addr, int32_t& val) {
     __except(EXCEPTION_EXECUTE_HANDLER) { return false; }
 }
 
+static bool SEH_Read8(uintptr_t addr, uint8_t& val) {
+    __try { val = *(uint8_t*)addr; return true; }
+    __except(EXCEPTION_EXECUTE_HANDLER) { return false; }
+}
+
 uintptr_t FindLocal(uintptr_t from, uintptr_t to, const char* pat) {
     __try {
         int p[256], n = 0;
@@ -529,7 +534,16 @@ void InitExpedition() {
     }
     std::cout << "[EXP] ExpHashCmp found at 0x" << std::hex << hashCmp << std::dec << std::endl;
     
-    uintptr_t tailJmp = FindLocal(hashCmp + 8, hashCmp + 0x100, Patterns::ExpTailJmp);
+    uintptr_t tailJmp = 0;
+    uint8_t jccOp = 0;
+    if (SEH_Read8(hashCmp + 7, jccOp) && jccOp == 0x84) { // 0F 84 = jz
+        int32_t jzRel = 0;
+        if (SEH_Read32(hashCmp + 8, jzRel)) {
+            // 0F 84 rel32
+            uintptr_t caseBody = hashCmp + 12 + (uintptr_t)jzRel;
+            tailJmp = FindLocal(caseBody, caseBody + 0x200, Patterns::ExpTailJmp);
+        }
+    }
     if (!tailJmp) {
         std::cout << "[EXP] Tail jmp not found" << std::endl;
         return;
