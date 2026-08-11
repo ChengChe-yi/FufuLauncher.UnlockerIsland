@@ -20,6 +20,8 @@ Licensed under the AGPL-3.0 License.
 #include "../Visual/Visual.h"
 #include "../UnderwaterMask/UnderwaterMask.h"
 #include "../FreeCamera/FreeCamera.h"
+#include "../Camera/Camera.h"
+#include "../CameraOffset/CameraOffset.h"
 #include <iostream>
 #include <atomic>
 #include <mutex>
@@ -379,7 +381,21 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     auto orig = (tChangeFov)o_ChangeFov.load();
     int32_t ret = orig ? orig(__this, value) : 0;
     bool dialogueOrCutsceneActive = IsDialogueOrCutsceneActive();
-    FreeCamera::Tick(!isAimingCamera && !dialogueOrCutsceneActive);
+    Camera::Tick();
+    bool freeCameraActive = FreeCamera::IsActive();
+    if (freeCameraActive) {
+        // FreeCamera has exclusive ownership once it is active. CameraOffset
+        // may clear its bookkeeping, but it must not update the camera again
+        // in this hook invocation.
+        CameraOffset::SuspendImmediately();
+        FreeCamera::Tick();
+        return ret;
+    }
+    if (isAimingCamera) CameraOffset::SuspendImmediately();
+    CameraOffset::Tick(
+        !isAimingCamera && !dialogueOrCutsceneActive,
+        false);
+    FreeCamera::Tick();
     return ret;
 }
 
@@ -586,6 +602,8 @@ bool Hooks::Init() {
 
     UnderwaterMask::Init();
 
+    Camera::Init();
+    CameraOffset::Init();
     FreeCamera::Init();
     
     if (!isOS && Config::Get().enable_low_render_scale) {
