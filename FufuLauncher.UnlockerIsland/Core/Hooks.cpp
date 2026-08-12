@@ -464,7 +464,22 @@ bool Hooks::Init() {
     }
     HOOK_DIR("QuestBanner", Patterns::QuestBanner, hk_SetupQuestBanner, o_SetupQuestBanner);
     SCAN_DIR("FindGameObject", Patterns::FindGameObject, p_FindGameObject);
-    HOOK_REL("SetActive", Patterns::SetActive, hk_SetActive, o_SetActive);
+    {
+        HMODULE hMod = GetModuleHandle(NULL);
+        uintptr_t offsetSetActive = StringToAddr(Offsets::SetActiveOffset);
+        if (hMod && offsetSetActive) {
+            void* setActiveAddr = (void*)((uintptr_t)hMod + offsetSetActive);
+            LogOffset("SetActive", setActiveAddr, setActiveAddr);
+            std::cout << "[SCAN] SetActive via offset: 0x"
+                      << std::hex << offsetSetActive << std::dec << '\n';
+            if (MH_CreateHook(setActiveAddr, (void*)hk_SetActive, (void**)&o_SetActive) == MH_OK)
+                std::cout << "   -> SetActive Hook Ready." << std::endl;
+            else
+                std::cout << "   -> [ERR] SetActive MH_CreateHook Failed." << std::endl;
+        } else {
+            std::cout << "   -> [ERR] SetActive offset is missing." << std::endl;
+        }
+    }
     SCAN_DIR("GetName", Patterns::GetName, p_GetName);
     HOOK_DIR("DamageText", Patterns::DamageText, hk_ShowDamage, o_ShowDamage);
     SCAN_DIR("FindString", Patterns::FindString, p_FindString);

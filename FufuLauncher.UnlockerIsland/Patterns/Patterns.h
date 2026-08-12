@@ -12,7 +12,7 @@ namespace Patterns {
     inline constexpr const char* SwitchInputDeviceToTouchScreen = "56 57 48 83 EC ? 48 89 CE 80 3D ? ? ? ? 00 48 8B 05 ? ? ? ? 0F 85 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 48 8B 15 ? ? ? ? E8 ? ? ? ? 48 89 C7 48 8B 05 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 31 D2";
     inline constexpr const char* QuestBanner = "41 57 41 56 56 57 55 53 48 81 EC E8 00 00 00 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 89 CE 0F 57 C0 0F 29 84 24 ? ? ? ? 0F 29 84 24 ? ? ? ? 0F 29 84 24";
     inline constexpr const char* FindGameObject = "40 53 48 83 EC ? 48 89 4C 24 ? 48 8D 54 24 ? 48 8D 4C 24 ? E8 ? ? ? ? 48 8B 08 48 85 C9 75 ? 48 8D 48 ? E8 ? ? ? ? 48 8B 4C 24 ? 48 8B D8 48 85 C9 74 ? 48 83 7C 24 ? 00 76";
-    inline constexpr const char* SetActive = "E8 ? ? ? ? 48 8B 56 ? 48 85 D2 0F 84 ? ? ? ? 80 3D ? ? ? ? 0 0F 85 ? ? ? ? 48 89 D1 E8 ? ? ? ? 48 85 C0 0F 84 ? ? ? ? 48 89 C1";
+    inline constexpr const char* SetActive = ""; //removed, use offset
     inline constexpr const char* DamageText = "41 57 41 56 41 55 41 54 56 57 55 53 48 81 EC E8 01 00 00 44 0F 29 AC 24 D0 01 00 00 44 0F 29 A4 24 C0 01 00 00 44 0F 29 9C 24 B0 01 00 00 44 0F 29 94 24 A0 01 00 00 44 0F 29 8C 24 90 01 00 00 44 0F 29 84 24 80 01 00 00 0F 29 BC 24 70 01 00 00 0F 29 B4 24 60 01 00 00 44 89 CF"; 
     inline constexpr const char* EventCamera = "41 57 41 56 56 57 55 53 48 83 EC 48 48 89 D7 49 89 CE 80 3D ?? ?? ?? ?? 00 0F 85 ?? ?? ?? ?? 80";
     inline constexpr const char* FindString = "56 48 83 ec 20 48 89 ce e8 ? ? ? ? 48 89 f1 89 c2 48 83 c4 20 5e e9 ? ? ? ? cc cc cc cc";
@@ -110,6 +110,7 @@ namespace Patterns {
         inline constexpr const char* DamageColor3 = "1309C670";
         inline constexpr const char* DamageColor4 = "1309C270";
         inline constexpr const char* BuildCmdBuffersOffset = "6DE3950";
+        inline constexpr const char* SetActiveOffset = "13D8580";
     }
 
     namespace OS {
@@ -128,7 +129,8 @@ namespace Patterns {
         inline constexpr const char* DamageColor1 = "1307C8F0"; 
         inline constexpr const char* DamageColor2 = "1307CAB0"; 
         inline constexpr const char* DamageColor3 = "1307CD30"; 
-        inline constexpr const char* DamageColor4 = "1307CA40"; 
+        inline constexpr const char* DamageColor4 = "1307CA40";
+        inline constexpr const char* SetActiveOffset = "13D8580";
     }
 
     /*  6.7 old
@@ -199,6 +201,7 @@ namespace Offsets {
     extern std::string DamageColor3Offset;
     extern std::string DamageColor4Offset;
     extern std::string BuildCmdBuffersOffset;
+    extern std::string SetActiveOffset;
 
     void InitOffsets(bool isOS);
 }
