@@ -268,18 +268,20 @@ static bool CheckCanUseShortcut() {
     return true;
 }
 
-static bool IsActiveGameObjectCached(Il2CppString*& cachedName, const char* name) {
+static bool IsActiveGameObject(const char* name) {
     auto findString = (tFindString)p_FindString.load();
     auto findGameObject = (tFindGameObject)p_FindGameObject.load();
     auto getActive = (tGetActive)p_GetActive.load();
     if (!IsValid(findString) || !IsValid(findGameObject)) return false;
-    if (!cachedName && IsValid(findString)) cachedName = findString(name);
-    if (!cachedName) return false;
 
     bool active = false;
     SafeInvoke([&] {
-        void* gameObject = findGameObject(cachedName);
+        Il2CppString* objectName = findString(name);
+        if (!objectName) return;
+
+        void* gameObject = findGameObject(objectName);
         if (!gameObject) return;
+
         active = !IsValid(getActive) || getActive(gameObject);
     });
     return active;
@@ -288,17 +290,14 @@ static bool IsActiveGameObjectCached(Il2CppString*& cachedName, const char* name
 static bool IsDialogueOrCutsceneActive() {
     static ULONGLONG lastCheck = 0;
     static bool cachedResult = false;
-    static Il2CppString* s_TalkDialog = nullptr;
-    static Il2CppString* s_TalkDialogV1 = nullptr;
-    static Il2CppString* s_CutScene = nullptr;
 
     ULONGLONG now = GetTickCount64();
     if (lastCheck != 0 && now - lastCheck < 1000) return cachedResult;
     lastCheck = now;
 
-    cachedResult = IsActiveGameObjectCached(s_TalkDialog, "TalkDialog") ||
-        IsActiveGameObjectCached(s_TalkDialogV1, "TalkDialogV1") ||
-        IsActiveGameObjectCached(s_CutScene, "InLevelCutScenePage");
+    cachedResult = IsActiveGameObject("TalkDialog") ||
+        IsActiveGameObject("TalkDialogV1") ||
+        IsActiveGameObject("InLevelCutScenePage");
     return cachedResult;
 }
 

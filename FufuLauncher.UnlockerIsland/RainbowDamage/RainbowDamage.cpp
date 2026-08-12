@@ -51,6 +51,10 @@ namespace RainbowDamageFeature {
     }
 
     void __fastcall HookGetColorA(Color* ret, void* self, void* list, int idx, void* method) {
+        if (!Config::Get().enable_rainbow_damage) {
+            g_oGetColorA(ret, self, list, idx, method);
+            return;
+        }
         __try {
             g_oGetColorA(ret, self, list, idx, method);
             if (!g_forceFallback.load(std::memory_order_relaxed)) {
@@ -62,6 +66,10 @@ namespace RainbowDamageFeature {
         }
     }
     void __fastcall HookGetColorB(Color* ret, void* self, void* arr, int idx, void* method) {
+        if (!Config::Get().enable_rainbow_damage) {
+            g_oGetColorB(ret, self, arr, idx, method);
+            return;
+        }
         __try {
             g_oGetColorB(ret, self, arr, idx, method);
             if (!g_forceFallback.load(std::memory_order_relaxed)) {
@@ -73,6 +81,10 @@ namespace RainbowDamageFeature {
         }
     }
     void __fastcall HookGetColor1(Color* ret, void* self, int idx, void* method) {
+        if (!Config::Get().enable_rainbow_damage) {
+            g_oGetColor1(ret, self, idx, method);
+            return;
+        }
         __try {
             g_oGetColor1(ret, self, idx, method);
             if (!g_forceFallback.load(std::memory_order_relaxed)) {
@@ -84,6 +96,10 @@ namespace RainbowDamageFeature {
         }
     }
     void __fastcall HookGetColor2(Color* ret, void* self, int idx, void* method) {
+        if (!Config::Get().enable_rainbow_damage) {
+            g_oGetColor2(ret, self, idx, method);
+            return;
+        }
         __try {
             g_oGetColor2(ret, self, idx, method);
         }
@@ -92,6 +108,10 @@ namespace RainbowDamageFeature {
         }
     }
     void __fastcall HookGetColor3(Color* ret, void* self, int idx, void* method) {
+        if (!Config::Get().enable_rainbow_damage) {
+            g_oGetColor3(ret, self, idx, method);
+            return;
+        }
         __try {
             g_oGetColor3(ret, self, idx, method);
             if (!g_forceFallback.load(std::memory_order_relaxed)) {
@@ -103,6 +123,10 @@ namespace RainbowDamageFeature {
         }
     }
     void __fastcall HookGetColor4(Color* ret, void* self, int idx, void* method) {
+        if (!Config::Get().enable_rainbow_damage) {
+            g_oGetColor4(ret, self, idx, method);
+            return;
+        }
         __try {
             g_oGetColor4(ret, self, idx, method);
         }
@@ -114,6 +138,7 @@ namespace RainbowDamageFeature {
     DWORD WINAPI ColorCycleThread(LPVOID) {
         while (true) {
             Sleep(2000);
+            if (!Config::Get().enable_rainbow_damage) continue;
             if (Config::Get().rainbow_damage_mode == 0) {
                 g_colorIdx = (g_colorIdx + 1) % PALETTE_COUNT;
             }

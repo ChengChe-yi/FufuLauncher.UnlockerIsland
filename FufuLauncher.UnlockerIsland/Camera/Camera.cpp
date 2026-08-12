@@ -8,9 +8,7 @@ Licensed under the AGPL-3.0 License.
 #include "../Scanner/Scanner.h"
 
 #include <atomic>
-#include <cmath>
 #include <iostream>
-#include <Windows.h>
 
 namespace Camera {
     namespace {
