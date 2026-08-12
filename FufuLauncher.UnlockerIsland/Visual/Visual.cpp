@@ -87,26 +87,35 @@ void UpdateOpenMap() {
     if (!p_CheckCanOpenMap.load()) return;
 
     unsigned char* patchBytes = (unsigned char*)p_CheckCanOpenMap.load();
-    if (patchBytes[0] == 0xE8) {
+    static bool s_originalSaved = false;
+    if (!s_originalSaved) {
         originalCheckCanOpenMapBytes[0] = patchBytes[0];
         originalCheckCanOpenMapBytes[1] = patchBytes[1];
         originalCheckCanOpenMapBytes[2] = patchBytes[2];
         originalCheckCanOpenMapBytes[3] = patchBytes[3];
         originalCheckCanOpenMapBytes[4] = patchBytes[4];
+        s_originalSaved = true;
     }
 
+    static bool s_patched = false;
     if (cfg.enable_redirect_craft_override) {
-        patchBytes[0] = 0xB8;
-        patchBytes[1] = 0x00;
-        patchBytes[2] = 0x00;
-        patchBytes[3] = 0x00;
-        patchBytes[4] = 0x00;
+        if (!s_patched) {
+            patchBytes[0] = 0xB8;
+            patchBytes[1] = 0x00;
+            patchBytes[2] = 0x00;
+            patchBytes[3] = 0x00;
+            patchBytes[4] = 0x00;
+            s_patched = true;
+        }
     } else {
-        patchBytes[0] = originalCheckCanOpenMapBytes[0];
-        patchBytes[1] = originalCheckCanOpenMapBytes[1];
-        patchBytes[2] = originalCheckCanOpenMapBytes[2];
-        patchBytes[3] = originalCheckCanOpenMapBytes[3];
-        patchBytes[4] = originalCheckCanOpenMapBytes[4];
+        if (s_patched) {
+            patchBytes[0] = originalCheckCanOpenMapBytes[0];
+            patchBytes[1] = originalCheckCanOpenMapBytes[1];
+            patchBytes[2] = originalCheckCanOpenMapBytes[2];
+            patchBytes[3] = originalCheckCanOpenMapBytes[3];
+            patchBytes[4] = originalCheckCanOpenMapBytes[4];
+            s_patched = false;
+        }
     }
 }
 
@@ -318,13 +327,12 @@ static Il2CppString* SafeGetName(tGetName getName, void* obj) {
 void WINAPI hk_SetActive(void* pThis, bool active) {
     tSetActive orig = (tSetActive)o_SetActive.load();
     auto cfg = Config::Get();
-    auto getName = (tGetName)p_GetName.load();
 
-    if (active && getName) {
-        Il2CppString* name = SafeGetName(getName, pThis);
-
-        if (name && name->chars) {
-            if (cfg.hide_grass) {
+    if (active && cfg.hide_grass) {
+        auto getName = (tGetName)p_GetName.load();
+        if (getName) {
+            Il2CppString* name = SafeGetName(getName, pThis);
+            if (name && name->chars) {
                 if (cfg.hide_grass_indiscriminate) {
                     if (wcsstr(name->chars, L"Grass") && !wcsstr(name->chars, L"Eff") && !wcsstr(name->chars, L"Monster")) {
                         return;

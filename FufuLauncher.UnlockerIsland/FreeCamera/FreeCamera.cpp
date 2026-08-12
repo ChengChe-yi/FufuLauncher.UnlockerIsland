@@ -155,6 +155,11 @@ namespace FreeCamera {
 
             while (true) {
                 Sleep(10);
+                MSG msg;
+                while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+                    TranslateMessage(&msg);
+                    DispatchMessage(&msg);
+                }
                 auto& config = Config::Get();
 
                 if (!g_Ready.load(std::memory_order_relaxed) ||

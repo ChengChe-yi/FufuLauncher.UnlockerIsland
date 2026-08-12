@@ -268,40 +268,37 @@ static bool CheckCanUseShortcut() {
     return true;
 }
 
-static bool IsActiveGameObject(const char* name) {
+static bool IsActiveGameObjectCached(Il2CppString*& cachedName, const char* name) {
     auto findString = (tFindString)p_FindString.load();
     auto findGameObject = (tFindGameObject)p_FindGameObject.load();
     auto getActive = (tGetActive)p_GetActive.load();
     if (!IsValid(findString) || !IsValid(findGameObject)) return false;
+    if (!cachedName && IsValid(findString)) cachedName = findString(name);
+    if (!cachedName) return false;
 
     bool active = false;
     SafeInvoke([&] {
-        Il2CppString* objectName = findString(name);
-        if (!objectName) return;
-
-        void* gameObject = findGameObject(objectName);
+        void* gameObject = findGameObject(cachedName);
         if (!gameObject) return;
-
-        // Unity's GameObject.Find only returns active objects. Keep the
-        // explicit get_active check when it is available as an extra guard.
         active = !IsValid(getActive) || getActive(gameObject);
     });
     return active;
 }
 
 static bool IsDialogueOrCutsceneActive() {
-    // GameObject.Find is relatively expensive, so poll the two UI roots at a
-    // modest rate and reuse the result between ChangeFOV calls.
     static ULONGLONG lastCheck = 0;
     static bool cachedResult = false;
+    static Il2CppString* s_TalkDialog = nullptr;
+    static Il2CppString* s_TalkDialogV1 = nullptr;
+    static Il2CppString* s_CutScene = nullptr;
 
     ULONGLONG now = GetTickCount64();
-    if (lastCheck != 0 && now - lastCheck < 50) return cachedResult;
+    if (lastCheck != 0 && now - lastCheck < 1000) return cachedResult;
     lastCheck = now;
 
-    cachedResult = IsActiveGameObject("TalkDialog") ||
-        IsActiveGameObject("TalkDialogV1") ||
-        IsActiveGameObject("InLevelCutScenePage");
+    cachedResult = IsActiveGameObjectCached(s_TalkDialog, "TalkDialog") ||
+        IsActiveGameObjectCached(s_TalkDialogV1, "TalkDialogV1") ||
+        IsActiveGameObjectCached(s_CutScene, "InLevelCutScenePage");
     return cachedResult;
 }
 
@@ -384,13 +381,10 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
 
     auto orig = (tChangeFov)o_ChangeFov.load();
     int32_t ret = orig ? orig(__this, value) : 0;
-    bool dialogueOrCutsceneActive = IsDialogueOrCutsceneActive();
+    bool dialogueOrCutsceneActive = cfg.enable_camera_offset ? IsDialogueOrCutsceneActive() : false;
     Camera::Tick();
     bool freeCameraActive = FreeCamera::IsActive();
     if (freeCameraActive) {
-        // FreeCamera has exclusive ownership once it is active. CameraOffset
-        // may clear its bookkeeping, but it must not update the camera again
-        // in this hook invocation.
         CameraOffset::SuspendImmediately();
         FreeCamera::Tick();
         return ret;
