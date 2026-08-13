@@ -28,7 +28,7 @@ typedef int32_t (WINAPI *tSetFrameCount)(int32_t);
 typedef void (WINAPI *tSwitchInput)(void*);
 typedef int32_t (WINAPI *tChangeFov)(void*, float);
 typedef void (WINAPI *tSetupQuestBanner)(void*);
-typedef void (WINAPI *tShowDamage)(void*, int, int, int, float, Il2CppString*, void*, void*, int);
+typedef void (WINAPI *tShowDamage)(void*, int, int, int, float, Il2CppString*, void*, void*, int, char, float);
 typedef void (WINAPI *tCraftEntry)(void*);
 typedef bool (WINAPI *tCraftPartner)(Il2CppString*, void*, void*, void*, void*);
 typedef Il2CppString* (WINAPI *tFindString)(const char*);

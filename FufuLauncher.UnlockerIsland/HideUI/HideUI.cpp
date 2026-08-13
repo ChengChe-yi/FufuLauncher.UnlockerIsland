@@ -11,6 +11,8 @@ Licensed under the AGPL-3.0 License.
 
 static HWND g_hGameWindow = NULL;
 
+static std::atomic g_ShowDamageParamsValid{ true };
+
 bool CheckWindowFocused(HWND window) {
     if (!window) return false;
     DWORD foregroundProcessId = 0;
@@ -136,8 +138,25 @@ void WINAPI hk_SetupQuestBanner(void* __this) {
     if (orig) orig(__this);
 }
 
-void WINAPI hk_ShowDamage(void* a, int b, int c, int d, float e, Il2CppString* f, void* g, void* h, int i) {
-    if (Config::Get().disable_show_damage_text) return;
+void WINAPI hk_ShowDamage(void* a, int b, int c, int d, float e, Il2CppString* f, void* g, void* h, int i, char j, float k) {
     auto orig = (tShowDamage)o_ShowDamage.load();
-    if (orig) orig(a, b, c, d, e, f, g, h, i);
+    
+    if (!Config::Get().disable_show_damage_text) {
+        if (orig) orig(a, b, c, d, e, f, g, h, i, j, k);
+        return;
+    }
+
+    if (g_ShowDamageParamsValid.load()) {
+        bool abnormal = IsBadReadPtr(a, 4) ||
+                        (j != 0 && j != 1) ||
+                        !std::isfinite(k) || k < 0.0f;
+        if (abnormal) {
+            g_ShowDamageParamsValid.store(false);
+            std::cout << "[WARN] DamageText params abnormal, feature disabled for safety." << std::endl;
+        }
+    }
+
+    if (g_ShowDamageParamsValid.load()) return;
+
+    if (orig) orig(a, b, c, d, e, f, g, h, i, j, k);
 }
