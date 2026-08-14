@@ -22,6 +22,7 @@ Licensed under the AGPL-3.0 License.
 #include "../FreeCamera/FreeCamera.h"
 #include "../Camera/Camera.h"
 #include "../CameraOffset/CameraOffset.h"
+#include "../PaimonFollow/PaimonFollow.h"
 #include <iostream>
 #include <atomic>
 #include <mutex>
@@ -311,6 +312,7 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
         UpdateHideUID();
         UpdateHideMainUI();
         UpdateOpenMap();
+        PaimonFollow::Tick();
     }
 
 
@@ -488,6 +490,7 @@ bool Hooks::Init() {
     SCAN_DIR("CheckCanOpenMap", Patterns::CheckCanOpenMap, p_CheckCanOpenMap);
     SCAN_DIR("StringNew", Patterns::StringNew, p_StringNew);
     SCAN_DIR("ShowDialog", Patterns::ShowDialog, p_ShowDialog);
+    SCAN_DIR("AvatarPaimonAppear", Patterns::AvatarPaimonAppear, p_AvatarPaimonAppear);
 
     void* eventCameraAddr = nullptr;
     uintptr_t offsetEventCam = StringToAddr(Offsets::EventCameraOffset);
@@ -614,6 +617,7 @@ bool Hooks::Init() {
     Camera::Init();
     CameraOffset::Init();
     FreeCamera::Init();
+    PaimonFollow::Init();
     
     if (!isOS && Config::Get().enable_low_render_scale) {
         uintptr_t offsetBuildCmd = StringToAddr(Offsets::BuildCmdBuffersOffset);

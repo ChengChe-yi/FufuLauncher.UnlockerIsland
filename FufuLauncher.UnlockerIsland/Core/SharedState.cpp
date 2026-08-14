@@ -32,6 +32,7 @@ std::atomic<void*> p_GetName{ nullptr };
 std::atomic<void*> o_send{ nullptr };
 std::atomic<void*> o_sendto{ nullptr };
 std::atomic<void*> p_GetActive{ nullptr };
+std::atomic<void*> p_AvatarPaimonAppear{ nullptr };
 std::atomic<void*> p_StringNew{ nullptr };
 std::atomic<void*> p_ShowDialog{ nullptr };
 std::atomic<void*> o_BuildCmdBuffers{ nullptr };
