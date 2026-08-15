@@ -110,7 +110,7 @@ namespace Patterns {
         inline constexpr const char* DamageColor2 = "1309C2E0"; 
         inline constexpr const char* DamageColor3 = "1309C670";
         inline constexpr const char* DamageColor4 = "1309C270";
-        inline constexpr const char* BuildCmdBuffersOffset = "6DE3950";
+        inline constexpr const char* UpdateInnerTargetOffset = "6DE13F0";
         inline constexpr const char* SetActiveOffset = "13D8580";
     }
 
@@ -152,7 +152,7 @@ namespace Patterns {
         inline constexpr const char* DamageColor2 = "12422F40";
         inline constexpr const char* DamageColor3 = "12423B70";
         inline constexpr const char* DamageColor4 = "12422ED0";
-        inline constexpr const char* BuildCmdBuffersOffset = "6812110";
+        inline constexpr const char* UpdateInnerTargetOffset = "6812110";
     }
 
     namespace OS {
@@ -205,7 +205,7 @@ namespace Offsets {
     extern std::string DamageColor2Offset;
     extern std::string DamageColor3Offset;
     extern std::string DamageColor4Offset;
-    extern std::string BuildCmdBuffersOffset;
+    extern std::string UpdateInnerTargetOffset;
     extern std::string SetActiveOffset;
 
     void InitOffsets(bool isOS);

@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) FufuLauncher Dev Team. All rights reserved.
 Licensed under the AGPL-3.0 License.
 */
@@ -108,13 +108,16 @@ static uintptr_t ResolveAddress(uintptr_t addr) {
     return addr;
 }
 
-static void __fastcall hk_BuildCmdBuffers(void* pThis) {
+static __int64 __fastcall hk_UpdateInnerTarget(void* pThis, void* a2, double a3) {
     if (Config::Get().enable_low_render_scale) {
-        constexpr uintptr_t kScaleOffset = 0x88;
-        *(float*)((uintptr_t)pThis + kScaleOffset) = Config::Get().render_scale_value;
+        uintptr_t p = (uintptr_t)pThis;
+        *(float*)(p + 0x88) = Config::Get().render_scale_value;
+        *(__int64*)(p + 0x94) = 0;
+        *(__int64*)(p + 0x9C) = 0;
     }
-    auto orig = (tBuildCmdBuffers)o_BuildCmdBuffers.load();
-    if (orig) orig(pThis);
+    auto orig = (tUpdateInnerTarget)o_UpdateInnerTarget.load();
+    if (orig) return orig(pThis, a2, a3);
+    return 0;
 }
 
 static void* GetGetActiveAddr() {
@@ -620,18 +623,18 @@ bool Hooks::Init() {
     PaimonFollow::Init();
     
     if (!isOS && Config::Get().enable_low_render_scale) {
-        uintptr_t offsetBuildCmd = StringToAddr(Offsets::BuildCmdBuffersOffset);
-        if (offsetBuildCmd) {
-            void* buildCmdAddr = (void*)((uintptr_t)GetModuleHandle(NULL) + offsetBuildCmd);
-            LogOffset("BuildCmdBuffers", buildCmdAddr, buildCmdAddr);
-            std::cout << "[SCAN] BuildCmdBuffers resolved via offset at: 0x" << std::hex << offsetBuildCmd << std::dec << std::endl;
-            if (MH_CreateHook(buildCmdAddr, (void*)hk_BuildCmdBuffers, (void**)&o_BuildCmdBuffers) == MH_OK) {
-                std::cout << "   -> BuildCmdBuffers Hook Ready (CN)." << std::endl;
+        uintptr_t offsetUpdateTarget = StringToAddr(Offsets::UpdateInnerTargetOffset);
+        if (offsetUpdateTarget) {
+            void* updateTargetAddr = (void*)((uintptr_t)GetModuleHandle(NULL) + offsetUpdateTarget);
+            LogOffset("UpdateInnerTarget", updateTargetAddr, updateTargetAddr);
+            std::cout << "[SCAN] UpdateInnerTarget resolved via offset at: 0x" << std::hex << offsetUpdateTarget << std::dec << std::endl;
+            if (MH_CreateHook(updateTargetAddr, (void*)hk_UpdateInnerTarget, (void**)&o_UpdateInnerTarget) == MH_OK) {
+                std::cout << "   -> UpdateInnerTarget Hook Ready (CN)." << std::endl;
             } else {
-                std::cout << "   -> [ERR] BuildCmdBuffers MH_CreateHook Failed." << std::endl;
+                std::cout << "   -> [ERR] UpdateInnerTarget MH_CreateHook Failed." << std::endl;
             }
         } else {
-            std::cout << "[ERR] BuildCmdBuffers offset is missing." << std::endl;
+            std::cout << "[ERR] UpdateInnerTarget offset is missing." << std::endl;
         }
     }
 
