@@ -49,7 +49,8 @@ namespace Patterns {
     inline constexpr const char* UnderwaterMaskMain = "41 57 41 56 56 57 53 48 81 EC D0 04 00 00 48 89 CE";
     inline constexpr const char* UnderwaterMaskPostMain = "41 56 56 57 55 53 48 81 EC E0 00 00 00 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 86 ? ? ? ? 48 85 C0";
     inline constexpr const char* UnderwaterMaskClear = "56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D";
-
+    inline constexpr const char* UpdateInnerTargetSig = "56 57 55 53 48 81 EC ? ? ? ? 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 89 CE 80 B9";
+    
     inline constexpr const char* FreeCamCameraGetMain =
         "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
         "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
@@ -131,6 +132,7 @@ namespace Patterns {
         inline constexpr const char* DamageColor2 = "1307CAB0"; 
         inline constexpr const char* DamageColor3 = "1307CD30"; 
         inline constexpr const char* DamageColor4 = "1307CA40";
+        inline constexpr const char* UpdateInnerTargetOffset = "6DDF9E0";
         inline constexpr const char* SetActiveOffset = "13D8580";
     }
 

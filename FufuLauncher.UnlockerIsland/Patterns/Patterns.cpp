@@ -45,7 +45,7 @@ namespace Offsets {
             DamageColor2Offset = Patterns::OS::DamageColor2;
             DamageColor3Offset = Patterns::OS::DamageColor3;
             DamageColor4Offset = Patterns::OS::DamageColor4;
-            UpdateInnerTargetOffset = "";
+            UpdateInnerTargetOffset = Patterns::OS::UpdateInnerTargetOffset;
             SetActiveOffset = Patterns::OS::SetActiveOffset;
             std::cout << "[INFO] Pre-initialized Global (OS) Offsets from hardcode" << std::endl;
         } else {

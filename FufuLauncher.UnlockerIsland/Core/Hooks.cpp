@@ -622,14 +622,14 @@ bool Hooks::Init() {
     FreeCamera::Init();
     PaimonFollow::Init();
     
-    if (!isOS && Config::Get().enable_low_render_scale) {
+    if (Config::Get().enable_low_render_scale) {
         uintptr_t offsetUpdateTarget = StringToAddr(Offsets::UpdateInnerTargetOffset);
         if (offsetUpdateTarget) {
             void* updateTargetAddr = (void*)((uintptr_t)GetModuleHandle(NULL) + offsetUpdateTarget);
             LogOffset("UpdateInnerTarget", updateTargetAddr, updateTargetAddr);
             std::cout << "[SCAN] UpdateInnerTarget resolved via offset at: 0x" << std::hex << offsetUpdateTarget << std::dec << std::endl;
             if (MH_CreateHook(updateTargetAddr, (void*)hk_UpdateInnerTarget, (void**)&o_UpdateInnerTarget) == MH_OK) {
-                std::cout << "   -> UpdateInnerTarget Hook Ready (CN)." << std::endl;
+                std::cout << "   -> UpdateInnerTarget Hook Ready." << std::endl;
             } else {
                 std::cout << "   -> [ERR] UpdateInnerTarget MH_CreateHook Failed." << std::endl;
             }
