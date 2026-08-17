@@ -449,16 +449,24 @@ bool Hooks::Init() {
     SCAN_REL("SetFrameCount", Patterns::SetFrameCount, o_SetFrameCount);
     HOOK_DIR("ChangeFOV", Patterns::ChangeFOV, hk_ChangeFov, o_ChangeFov);
     {
-        HMODULE hMod = GetModuleHandle(NULL);
-        uintptr_t offsetTouchInput = StringToAddr(Offsets::TouchInputOffset);
-        if (hMod && offsetTouchInput) {
-            void* touchInputAddr = (void*)((uintptr_t)hMod + offsetTouchInput);
-            p_SwitchInput.store(touchInputAddr);
+        void* touchInputAddr = Scanner::ScanMainMod(Patterns::SwitchInputDeviceToTouchScreen);
+        if (touchInputAddr) {
             LogOffset("SwitchInputDeviceToTouchScreen", touchInputAddr, touchInputAddr);
-            std::cout << "[SCAN] SwitchInputDeviceToTouchScreen resolved via offset at: 0x"
-                      << std::hex << offsetTouchInput << std::dec << '\n';
+            std::cout << "[SCAN] SwitchInputDeviceToTouchScreen resolved via signature.\n";
         } else {
-            std::cout << "[ERR] SwitchInputDeviceToTouchScreen offset is missing.\n";
+            HMODULE hMod = GetModuleHandle(NULL);
+            uintptr_t offsetTouchInput = StringToAddr(Offsets::TouchInputOffset);
+            if (hMod && offsetTouchInput) {
+                touchInputAddr = (void*)((uintptr_t)hMod + offsetTouchInput);
+                LogOffset("SwitchInputDeviceToTouchScreen", touchInputAddr, touchInputAddr);
+                std::cout << "[SCAN] SwitchInputDeviceToTouchScreen resolved via offset: 0x"
+                          << std::hex << offsetTouchInput << std::dec << '\n';
+            } else {
+                std::cout << "[ERR] SwitchInputDeviceToTouchScreen offset is missing.\n";
+            }
+        }
+        if (touchInputAddr) {
+            p_SwitchInput.store(touchInputAddr);
         }
     }
     HOOK_DIR("QuestBanner", Patterns::QuestBanner, hk_SetupQuestBanner, o_SetupQuestBanner);
