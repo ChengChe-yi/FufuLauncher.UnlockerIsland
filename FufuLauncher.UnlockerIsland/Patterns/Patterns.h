@@ -137,6 +137,17 @@ namespace Patterns {
         // stub (RVA 19C9B800) is a bare jmp to this address
         // 48 89 5C 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2 48 8B 5C 24 ? 48 83 C4 20 5F E9 ? ? ? ? 48 8B CB E8 ? ? ? ? CC
     }
+
+    UnderwaterMask (7.1):
+      Clear = B9E1C70
+      // NOT UNIQUE (3 hits); use Main anchor + 0x8000 window scan
+      // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 17 85 D2 78
+      PreMain  = B9DB600
+      // 41 56 56 57 55 53 48 81 EC F0 04 00 00
+      Main     = B9DE9F0
+      // 41 57 41 56 56 57 53 48 81 EC D0 04 00 00 48 89 CE
+      PostMain = B9DF640
+      // 41 56 56 57 55 53 48 81 EC E0 00 00 00 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 86 ? ? ? ? 48 85 C0
     */
     // 7.0
     namespace CN {
