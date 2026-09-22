@@ -94,7 +94,62 @@ namespace Patterns {
         "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
         "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 44 89 C2";
 
-    // 7.0 new
+
+    /*  7.1 
+
+    namespace CN {
+        inline constexpr const char* GetActiveOffset = ""; //does not exist
+        inline constexpr const char* GetComponent = ""; //does not exist
+        inline constexpr const char* GetText = "19D9ABC0";
+        // 48 8B 81 ? ? ? ? C3 0F 1F 84 00 ? ? ? ? 56 57 48 83 EC 28 48 89 CE 48 85 D2 0F 84
+        inline constexpr const char* ClockPageOkOffset = "10DCB3B0";
+        // 56 57 55 53 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 80 BE ? ? ? ? ? 74 ? 48 83 C4 28 5B 5D 5F 5E C3 48 8B 86
+        inline constexpr const char* ClockPageCloseOffset = "1258D7E0";
+        // NOT UNIQUE (3 hits) - sibling page classes share this prologue; offset is authoritative
+        // 56 57 53 48 83 EC 20 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8B 8E ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 83 79 ? ? 7E ? 48 8B 15
+        inline constexpr const char* ClockPageFinishOffset = "10DCD690";
+        // NOT UNIQUE (2 hits) - offset is authoritative
+        // 56 48 83 EC 30 48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 85 D2 0F 84 ? ? ? ? 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 89 D1 31 D2 41 B8 03 00 00 00 E8
+        inline constexpr const char* ClockPageBackOffset = "10DC8A20";
+        // 56 57 48 83 EC 38 0F 29 74 24 ? 48 89 CE 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? C6 86
+        inline constexpr const char* TouchInputOffset = "9669C20";
+        // NOT UNIQUE (2 hits) - the other hit is a sibling build of the same class; offset is authoritative
+        // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 48 8B 05 ? ? ? ? 0F 85 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 48 8B 15
+        inline constexpr const char* InnerDispatcherOffset = "A62C240";
+        // 41 57 41 56 41 55 41 54 56 57 55 53 48 81 EC 08 01 00 00 4C 89 CD 4C 89 C7 48 89 D3 48 89 CA
+        inline constexpr const char* EventCameraOffset = ""; //does not exist
+        inline constexpr const char* DamageColorA = "13BDA820";
+        // 56 57 53 48 83 EC 40 44 89 CF 4C 89 C3 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 0D ? ? ? ? 80 B9 ? ? ? ? ? 74 ? B9 35 0E 00 00 E8
+        inline constexpr const char* DamageColorB = "13BD87E0";
+        // 56 57 53 48 83 EC 40 44 89 CB 4C 89 C7 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 0D ? ? ? ? 80 B9 ? ? ? ? ? 74 ? B9 35 0E 00 00 E8
+        inline constexpr const char* DamageColor1 = "13BD86D0";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 60 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* DamageColor2 = "13BDA7B0";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 48 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* DamageColor3 = "13BD8660";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 58 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* DamageColor4 = "13BDB100";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 40 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* UpdateInnerTargetOffset = "7089120";
+        // 56 57 55 53 48 81 EC C8 00 00 00 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 89 CE 80 B9 ? ? ? ? ? 74 ? F3 0F 10 B6 ? ? ? ? 8B 86 ? ? ? ? 85 C0 75 ? E9 ? ? ? ? F3 0F 10 35 ? ? ? ? 8B 86
+        inline constexpr const char* SetActiveOffset = "1452EE0";
+        // NOT UNIQUE (2 hits) - native .text impl, not in the managed dump; managed GameObject.SetActive
+        // stub (RVA 19C9B800) is a bare jmp to this address
+        // 48 89 5C 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2 48 8B 5C 24 ? 48 83 C4 20 5F E9 ? ? ? ? 48 8B CB E8 ? ? ? ? CC
+    }
+
+    UnderwaterMask (7.1):
+      Clear = B9E1C70
+      // NOT UNIQUE (3 hits); use Main anchor + 0x8000 window scan
+      // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 17 85 D2 78
+      PreMain  = B9DB600
+      // 41 56 56 57 55 53 48 81 EC F0 04 00 00
+      Main     = B9DE9F0
+      // 41 57 41 56 56 57 53 48 81 EC D0 04 00 00 48 89 CE
+      PostMain = B9DF640
+      // 41 56 56 57 55 53 48 81 EC E0 00 00 00 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 86 ? ? ? ? 48 85 C0
+    */
+    // 7.0
     namespace CN {
         inline constexpr const char* GetActiveOffset = ""; //does not exist
         inline constexpr const char* GetComponent = ""; //does not exist
