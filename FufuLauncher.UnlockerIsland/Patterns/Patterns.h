@@ -48,7 +48,7 @@ namespace Patterns {
     inline constexpr const char* UnderwaterMaskPreMain = "41 56 56 57 55 53 48 81 EC F0 04 00 00";
     inline constexpr const char* UnderwaterMaskMain = "41 57 41 56 56 57 53 48 81 EC D0 04 00 00 48 89 CE";
     inline constexpr const char* UnderwaterMaskPostMain = "41 56 56 57 55 53 48 81 EC E0 00 00 00 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 86 ? ? ? ? 48 85 C0";
-    inline constexpr const char* UnderwaterMaskClear = "56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D";
+    inline constexpr const char* UnderwaterMaskClear = "56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 17 85 D2 78";
     inline constexpr const char* UpdateInnerTargetSig = "56 57 55 53 48 81 EC ? ? ? ? 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 89 CE 80 B9";
     inline constexpr const char* SetupPlayerProfilePage = "55 41 57 41 56 41 55 41 54 56 57 53 48 81 EC ?? ?? ?? ?? 48 8D AC 24 ?? ?? ?? ?? 0F 29 75 ?? 48 C7 45 ?? ?? ?? ?? ?? 49 89 CC 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 0F 85 ?? ?? ?? ??";
 
@@ -95,7 +95,7 @@ namespace Patterns {
         "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 44 89 C2";
 
 
-    /*  7.1 
+
 
     namespace CN {
         inline constexpr const char* GetActiveOffset = ""; //does not exist
@@ -137,7 +137,8 @@ namespace Patterns {
         // stub (RVA 19C9B800) is a bare jmp to this address
         // 48 89 5C 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2 48 8B 5C 24 ? 48 83 C4 20 5F E9 ? ? ? ? 48 8B CB E8 ? ? ? ? CC
     }
-
+    
+    /*  7.1 
     UnderwaterMask (7.1):
       Clear = B9E1C70
       // NOT UNIQUE (3 hits); use Main anchor + 0x8000 window scan
@@ -149,7 +150,10 @@ namespace Patterns {
       PostMain = B9DF640
       // 41 56 56 57 55 53 48 81 EC E0 00 00 00 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 86 ? ? ? ? 48 85 C0
     */
-    // 7.0
+    
+
+    
+    /*  7.0 old
     namespace CN {
         inline constexpr const char* GetActiveOffset = ""; //does not exist
         inline constexpr const char* GetComponent = ""; //does not exist
@@ -170,7 +174,8 @@ namespace Patterns {
         inline constexpr const char* UpdateInnerTargetOffset = "6DE13F0";
         inline constexpr const char* SetActiveOffset = "13D8580";
     }
-
+    */
+    
     namespace OS {
         inline constexpr const char* GetActiveOffset = ""; //does not exist
         inline constexpr const char* GetComponent = ""; //does not exist
@@ -191,47 +196,8 @@ namespace Patterns {
         inline constexpr const char* UpdateInnerTargetOffset = "6DDF9E0";
         inline constexpr const char* SetActiveOffset = "13D8580";
     }
-
-    /*  6.7 old
-        namespace CN {
-        inline constexpr const char* GetActiveOffset = ""; //does not exist
-        inline constexpr const char* GetComponent = ""; //does not exist
-        inline constexpr const char* GetText = "17DF06F0";
-        inline constexpr const char* ClockPageOkOffset = "11919E90";
-        inline constexpr const char* ClockPageCloseOffset = "ECF7DC0";
-        inline constexpr const char* ClockPageFinishOffset = "11919A50";
-        inline constexpr const char* ClockPageBackOffset = "119172C0";
-        inline constexpr const char* TouchInputOffset = "8D00130";
-        inline constexpr const char* InnerDispatcherOffset = "105C0E80";
-        inline constexpr const char* EventCameraOffset = "0"; //does not exist
-        inline constexpr const char* DamageColorA = "12426CE0";
-        inline constexpr const char* DamageColorB = "124224F0";
-        inline constexpr const char* DamageColor1 = "12423BE0";
-        inline constexpr const char* DamageColor2 = "12422F40";
-        inline constexpr const char* DamageColor3 = "12423B70";
-        inline constexpr const char* DamageColor4 = "12422ED0";
-        inline constexpr const char* UpdateInnerTargetOffset = "6812110";
-    }
-
-    namespace OS {
-        inline constexpr const char* GetActiveOffset = ""; //does not exist
-        inline constexpr const char* GetComponent = ""; //does not exist
-        inline constexpr const char* GetText = "17E3EAE0";
-        inline constexpr const char* ClockPageOkOffset = "11933430";
-        inline constexpr const char* ClockPageCloseOffset = "ED0A3E0";
-        inline constexpr const char* ClockPageFinishOffset = "119315A0";
-        inline constexpr const char* ClockPageBackOffset = "11930990";
-        inline constexpr const char* TouchInputOffset = "8CEAB90";
-        inline constexpr const char* InnerDispatcherOffset = "105CAE70";
-        inline constexpr const char* EventCameraOffset = "DEEA1B0"; //special need
-        inline constexpr const char* DamageColorA = "12442850";
-        inline constexpr const char* DamageColorB = "12442960";
-        inline constexpr const char* DamageColor1 = "124426D0";
-        inline constexpr const char* DamageColor2 = "12441000";
-        inline constexpr const char* DamageColor3 = "12442660";
-        inline constexpr const char* DamageColor4 = "12440F90";
-    }
-     */
+    
+    
 }
 
 namespace GameStrings {
