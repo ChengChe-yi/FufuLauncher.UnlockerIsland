@@ -174,8 +174,7 @@ namespace Patterns {
         inline constexpr const char* UpdateInnerTargetOffset = "6DE13F0";
         inline constexpr const char* SetActiveOffset = "13D8580";
     }
-    */
-    
+
     namespace OS {
         inline constexpr const char* GetActiveOffset = ""; //does not exist
         inline constexpr const char* GetComponent = ""; //does not exist
@@ -195,6 +194,29 @@ namespace Patterns {
         inline constexpr const char* DamageColor4 = "1307CA40";
         inline constexpr const char* UpdateInnerTargetOffset = "6DDF9E0";
         inline constexpr const char* SetActiveOffset = "13D8580";
+    }
+    */
+
+    
+    namespace OS {
+        inline constexpr const char* GetActiveOffset = ""; //does not exist
+        inline constexpr const char* GetComponent = ""; //does not exist
+        inline constexpr const char* GetText = ""; 
+        inline constexpr const char* ClockPageOkOffset = "";
+        inline constexpr const char* ClockPageCloseOffset = "";
+        inline constexpr const char* ClockPageFinishOffset = "";
+        inline constexpr const char* ClockPageBackOffset = "";
+        inline constexpr const char* TouchInputOffset = "";
+        inline constexpr const char* InnerDispatcherOffset = "";
+        inline constexpr const char* EventCameraOffset = ""; //special need 
+        inline constexpr const char* DamageColorA = "";
+        inline constexpr const char* DamageColorB = "";
+        inline constexpr const char* DamageColor1 = "";
+        inline constexpr const char* DamageColor2 = "";
+        inline constexpr const char* DamageColor3 = "";
+        inline constexpr const char* DamageColor4 = "";
+        inline constexpr const char* UpdateInnerTargetOffset = "";
+        inline constexpr const char* SetActiveOffset = "";
     }
     
     
