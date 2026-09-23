@@ -96,85 +96,64 @@ namespace Patterns {
         // 48 89 5C 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2 48 8B 5C 24 ? 48 83 C4 20 5F E9 ? ? ? ? 48 8B CB E8 ? ? ? ? CC
     }
     
-    /*  7.1 
-    UnderwaterMask (7.1):
-      Clear = B9E1C70
-      // NOT UNIQUE (3 hits); use Main anchor + 0x8000 window scan
-      // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 17 85 D2 78
-      PreMain  = B9DB600
-      // 41 56 56 57 55 53 48 81 EC F0 04 00 00
-      Main     = B9DE9F0
-      // 41 57 41 56 56 57 53 48 81 EC D0 04 00 00 48 89 CE
-      PostMain = B9DF640
-      // 41 56 56 57 55 53 48 81 EC E0 00 00 00 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 86 ? ? ? ? 48 85 C0
-    */
-    
 
-    
-    /*  7.0 old
-    namespace CN {
-        inline constexpr const char* GetActiveOffset = ""; //does not exist
-        inline constexpr const char* GetComponent = ""; //does not exist
-        inline constexpr const char* GetText = "190A4300"; 
-        inline constexpr const char* ClockPageOkOffset = "101193D0"; 
-        inline constexpr const char* ClockPageCloseOffset = "EE03560"; 
-        inline constexpr const char* ClockPageFinishOffset = "101181C0"; 
-        inline constexpr const char* ClockPageBackOffset = "101151B0"; 
-        inline constexpr const char* TouchInputOffset = "9DB42B0"; 
-        inline constexpr const char* InnerDispatcherOffset = "E648A10"; 
-        inline constexpr const char* EventCameraOffset = ""; //does not exist
-        inline constexpr const char* DamageColorA = "1309AD50"; 
-        inline constexpr const char* DamageColorB = "1309C460"; 
-        inline constexpr const char* DamageColor1 = "1309C3F0"; 
-        inline constexpr const char* DamageColor2 = "1309C2E0"; 
-        inline constexpr const char* DamageColor3 = "1309C670";
-        inline constexpr const char* DamageColor4 = "1309C270";
-        inline constexpr const char* UpdateInnerTargetOffset = "6DE13F0";
-        inline constexpr const char* SetActiveOffset = "13D8580";
-    }
-
-    namespace OS {
-        inline constexpr const char* GetActiveOffset = ""; //does not exist
-        inline constexpr const char* GetComponent = ""; //does not exist
-        inline constexpr const char* GetText = "19086640"; 
-        inline constexpr const char* ClockPageOkOffset = "100FF760";
-        inline constexpr const char* ClockPageCloseOffset = "EDEBCE0";
-        inline constexpr const char* ClockPageFinishOffset = "100FDC70";
-        inline constexpr const char* ClockPageBackOffset = "100FC930";
-        inline constexpr const char* TouchInputOffset = "9D976C0";
-        inline constexpr const char* InnerDispatcherOffset = "E291D10";
-        inline constexpr const char* EventCameraOffset = "70D9930"; //special need 
-        inline constexpr const char* DamageColorA = "1307CFB0";
-        inline constexpr const char* DamageColorB = "1307C960";
-        inline constexpr const char* DamageColor1 = "1307C8F0";
-        inline constexpr const char* DamageColor2 = "1307CAB0";
-        inline constexpr const char* DamageColor3 = "1307CD30";
-        inline constexpr const char* DamageColor4 = "1307CA40";
-        inline constexpr const char* UpdateInnerTargetOffset = "6DDF9E0";
-        inline constexpr const char* SetActiveOffset = "13D8580";
-    }
-    */
 
     
     namespace OS {
-        inline constexpr const char* GetActiveOffset = ""; //does not exist
+        inline constexpr const char* GetActiveOffset = ""; //does not exist - resolved by Patterns::GetActive (unique hit RVA 6C73543 in 7.1)
         inline constexpr const char* GetComponent = ""; //does not exist
-        inline constexpr const char* GetText = ""; 
-        inline constexpr const char* ClockPageOkOffset = "";
-        inline constexpr const char* ClockPageCloseOffset = "";
-        inline constexpr const char* ClockPageFinishOffset = "";
-        inline constexpr const char* ClockPageBackOffset = "";
-        inline constexpr const char* TouchInputOffset = "";
-        inline constexpr const char* InnerDispatcherOffset = "";
-        inline constexpr const char* EventCameraOffset = ""; //special need 
-        inline constexpr const char* DamageColorA = "";
-        inline constexpr const char* DamageColorB = "";
-        inline constexpr const char* DamageColor1 = "";
-        inline constexpr const char* DamageColor2 = "";
-        inline constexpr const char* DamageColor3 = "";
-        inline constexpr const char* DamageColor4 = "";
-        inline constexpr const char* UpdateInnerTargetOffset = "";
-        inline constexpr const char* SetActiveOffset = "";
+        inline constexpr const char* GetText = "19CE4B60";
+        // 48 8B 81 E0 00 00 00 C3 0F 1F 84 00 ? ? ? ? 56 57 48 83 EC 28 48 89 CE 48 85 D2 0F 84
+        inline constexpr const char* ClockPageOkOffset = "10D9E7B0";
+        // 56 57 55 53 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 80 BE ? ? ? ? ? 74 ? 48 83 C4 28 5B 5D 5F 5E C3 48 8B 86
+        // verified instruction-by-instruction: 149/150 match, guard byte field 0x255(cn) -> 0x251(os)
+        inline constexpr const char* ClockPageCloseOffset = "1255F2C0";
+        // NOT UNIQUE in 7.1 (3 sibling pages share the prologue); this one selected by full-body
+        // fingerprint (instance fields included): 125/125 instructions of the CN body match
+        // 56 57 53 48 83 EC 20 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8B 8E 10 02 00 00 48 85 C9 0F 84
+        inline constexpr const char* ClockPageFinishOffset = "10DA1620";
+        // TWIN (byte-identical copies at 10DA1620 and 10DA1A50; CN has the same twin pair at
+        // 10DCD690/10DCDBE0). Picked the first one, matching the CN authoritative offset; the
+        // surrounding function-size chain (prev 3B5, next 15E) also maps to this address.
+        // 56 48 83 EC 30 48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 85 D2 0F 84 ? ? ? ? 48 89 CE 80 3D
+        inline constexpr const char* ClockPageBackOffset = "10D9FED0";
+        // 56 57 48 83 EC 38 0F 29 74 24 ? 48 89 CE 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? C6 86 55 02 00 00 01
+        // other prologue-matching siblings in 7.1 are different classes (score <0.42); this one scores
+        // 145/150, only the 0x255 -> 0x251 guard byte differs
+        inline constexpr const char* TouchInputOffset = "966B2D0";
+        // NOT UNIQUE (near-copy at 1297F7E0, 73% match - sibling class); this one is the byte twin:
+        // 149/150 instructions match, only static field offsets differ (0x9C70->0x9CB0, 0x9CA0->0x9CC0,
+        // 0x9CF0->0xA030, 0x498->0x268, 0x256D0->0x24F40, 0x2A6670->0x2C5BE0)
+        // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 48 8B 05 ? ? ? ? 0F 85 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 0F 84
+        inline constexpr const char* InnerDispatcherOffset = "A64CE00";
+        // 41 57 41 56 41 55 41 54 56 57 55 53 48 81 EC 08 01 00 00 4C 89 CD 4C 89 C7 48 89 D3 48 89 CA
+        // verified: 509/510 bytes identical (hash constants incl. B9 C5 9D 1C 81 and 69 CD 93 01 00 01 match),
+        // only one field differs: 0x4DC(cn) -> 0x424(os)
+        inline constexpr const char* EventCameraOffset = "73AC8E0"; //special need
+        // 41 57 41 56 56 57 55 53 48 83 EC 48 48 89 D7 49 89 CE 80 3D ? ? ? ? 00 0F 85 ? ? ? ? 80
+        // same unique signature hit as the runtime scan; 129/150 instructions match CN counterpart,
+        // divergences are only element-stride indexed accesses (0x44/0x40, 0x1D0/0x5C)
+        inline constexpr const char* DamageColorA = "13BA5720";
+        // caller shape, instance fields verified; class-static fields differ by build
+        // (0x256D0/0x222E40 in cn)
+        // 56 57 53 48 83 EC 40 44 89 CF 4C 89 C3 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 0D ? ? ? ? 80 B9 C7 00 00 00 00 74 ? B9 35 0E 00 00 E8
+        inline constexpr const char* DamageColorB = "13BA4A70";
+        // 56 57 53 48 83 EC 40 44 89 CB 4C 89 C7 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 0D ? ? ? ? 80 B9 C7 00 00 00 00 74 ? B9 35 0E 00 00 E8
+        inline constexpr const char* DamageColor1 = "13BA47F0";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 60 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* DamageColor2 = "13BA4500";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 48 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* DamageColor3 = "13BA4780";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 58 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* DamageColor4 = "13BA4490";
+        // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 40 48 8D 4C 24 ? 48 89 C2
+        inline constexpr const char* UpdateInnerTargetOffset = "7085E10";
+        // 56 57 55 53 48 81 EC C8 00 00 00 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ?
+        // verified: 429/429 concrete bytes match (fields 0x168/0x170/0x194/0x198/0x1A8/0xB0/0xB4 all identical)
+        inline constexpr const char* SetActiveOffset = "1451EE0";
+        // 48 89 5C 24 08 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2
+        // shape is generic (45 hits); this one confirmed by the native getter that follows it at +0x40
+        // (0F B6 80 F6 01 00 00) and by a full 150/150 instruction match with the CN implementation
     }
     
     
