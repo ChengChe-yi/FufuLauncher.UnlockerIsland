@@ -40,7 +40,7 @@ namespace Patterns {
     inline constexpr const char* CookNullTgt1  = "48 8B 86 ? ? 00 00";
     inline constexpr const char* CookNullTgt2  = "48 85 DB";
     inline constexpr const char* CookShowPage  = "E8 ? ? ? ? 40 B6 01";
-    inline constexpr const char* ExpHashCmp    = "81 F9 E1 73 90 69 0F 84"; 
+    inline constexpr const char* ExpHashCmp    = "81 F9 E1 73 90 69"; 
     inline constexpr const char* ExpTailJmp    = "41 5F E9";
     inline constexpr const char* ExpTestJz     = "84 C0 0F 84";
     inline constexpr const char* CameraUpdateView = "56 48 83 EC 40 0F 29 7C 24 30 0F 29 74 24 20 48 89 CE F3 0F 10 71 70 F3 0F 10 79 78 F3 0F 5C F7 F3 0F 59 B1 80 00 00 00 E8 ?";
@@ -51,48 +51,6 @@ namespace Patterns {
     inline constexpr const char* UnderwaterMaskClear = "56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8D BE ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 8B 17 85 D2 78";
     inline constexpr const char* UpdateInnerTargetSig = "56 57 55 53 48 81 EC ? ? ? ? 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 89 CE 80 B9";
     inline constexpr const char* SetupPlayerProfilePage = "55 41 57 41 56 41 55 41 54 56 57 53 48 81 EC ?? ?? ?? ?? 48 8D AC 24 ?? ?? ?? ?? 0F 29 75 ?? 48 C7 45 ?? ?? ?? ?? ?? 49 89 CC 80 3D ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 80 3D ?? ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 0F 85 ?? ?? ?? ??";
-
-    inline constexpr const char* FreeCamCameraGetMain =
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "48 8B 05 ? ? ? ? 48 8B 80 ? ? ? ? 48 85 C0 74 12";
-
-    inline constexpr const char* FreeCamComponentGetTransform =
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 56 48 83 EC 20 48 89 D6 E8 ? ? ? ?";
-
-    inline constexpr const char* FreeCamTransformSetPosition =
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 44 89 C2 49 89 F0 E8 ? ? ? ? "
-        "48 89 F0 48 83 C4 20 5E C3 0F 1F 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 56";
-
-    inline constexpr const char* FreeCamTransformSetRotation =
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50 48 89 D0 48 89 CE 0F 57 C0 0F 29 44 24 30 "
-        "48 8D 54 24 30 48 89 C1 E8 ? ? ? ? 0F 28 44 24 30 0F 29 44 24 40 0F 29 44 24 30 C7 44 24 28 00 00 00 00 "
-        "48 C7 44 24 20 00 00 00 00 48 8D 4C 24 30 48 8D 54 24 20 E8 ? ? ? ? F3 0F 10 05 ? ? ? ? F3 0F 10 4C 24 24 "
-        "F3 0F 59 C8 F3 0F 10 54 24 20 F3 0F 59 D0 F3 0F 10 1D ? ? ? ? 0F 2E DA 76 ? F3 0F 10 25 ? ? ? ? EB ? "
-        "0F 2E 15 ? ? ? ? 76 ? F3 0F 10 25 ? ? ? ? F3 0F 58 D4 F3 0F 59 44 24 28 0F 2E D9 76 ? F3 0F 10 25 ? ? ? ? EB ? "
-        "0F 2E 0D ? ? ? ? 76 ? F3 0F 10 25 ? ? ? ? F3 0F 58 CC 0F 2E D8 76 ? F3 0F 10 1D ? ? ? ? EB ? "
-        "0F 2E 05 ? ? ? ? 76 ? F3 0F 10 1D ? ? ? ? F3 0F 58 C3 F3 0F 11 16 F3 0F 11 4E 04 F3 0F 11 46 08 "
-        "48 89 F0 48 83 C4 50 5E C3 0F 1F 40 00 56 48 83 EC 20 48 89 CE 0F 57 C0 0F 11 01 48 89 D1 48 89 F2 "
-        "E8 ? ? ? ? 48 89 F0 48 83 C4 20 5E C3 66 66 66 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50 "
-        "F3 0F 10 42 08 F3 0F 59 05 ? ? ? ? 48 89 CE F2 0F 10 0A 0F 59 0D ? ? ? ? 0F 13 4C 24 20 F3 0F 11 44 24 28 "
-        "0F 57 C0 0F 29 44 24 30 48 8D 4C 24 20 48 8D 54 24 30 E8 ? ? ? ? 0F 28 44 24 30 0F 29 44 24 40 "
-        "48 8D 54 24 40 48 89 F1 E8 ? ? ? ? 90 48 83 C4 50 5E C3 E9 ? ? ? ? 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 81 EC 80 00 00 00";
-
-    inline constexpr const char* FreeCamTransformGetRotation =
-        "56 48 83 EC 20 48 89 CE 0F 57 C0 0F 11 01 48 89 D1 48 89 F2 E8 ? ? ? ? "
-        "48 89 F0 48 83 C4 20 5E C3 66 66 66 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50";
-
-    inline constexpr const char* FreeCamTransformGetPosition =
-        "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 48 89 F2 E8 ? ? ? ? "
-        "48 89 F0 48 83 C4 20 5E C3 66 0F 1F 44 00 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
-        "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 44 89 C2";
 
 
 

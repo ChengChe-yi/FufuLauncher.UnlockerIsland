@@ -19,18 +19,6 @@ struct ModConfig {
     
     float fov_value = 45.0f;
 
-    bool enable_camera_offset = false;
-
-    int camera_offset_key = VK_F6;
-
-    float camera_offset_x = 0.0f;
-
-    float camera_offset_z = 0.0f;
-
-    float camera_offset_y = 0.0f;
-
-    float camera_height_transition_speed = 8.0f;
-
     bool use_touch_screen = false;
     
     bool hide_quest_banner = false;
@@ -97,13 +85,6 @@ struct ModConfig {
 
     bool enable_low_render_scale = false;
     float render_scale_value = 1.00f;
-
-    bool enable_free_cam = false;
-    int free_cam_key = VK_INSERT;
-    int free_cam_lock_key = VK_DELETE;
-    float free_cam_move_speed = 8.0f;
-    float free_cam_sprint_mult = 3.0f;
-    float free_cam_mouse_sensitivity = 0.12f;
 
     bool enable_paimon_follow = false;
 };

@@ -17,12 +17,6 @@ Licensed under the AGPL-3.0 License.
 
 struct Il2CppString;
 
-struct Vector3 { float x, y, z; };
-
-struct __declspec(align(16)) Matrix4x4 {
-    float m[4][4];
-};
-
 typedef int32_t (WINAPI *tGetFrameCount)();
 typedef int32_t (WINAPI *tSetFrameCount)(int32_t);
 typedef void (WINAPI *tSwitchInput)(void*);
@@ -108,8 +102,6 @@ extern ID3D11RenderTargetView* g_mainRenderTargetView;
 extern HWND g_hGameWindow_ImGui;
 extern tResizeBuffers o_ResizeBuffers;
 extern tPresent1 o_Present1;
-
-extern bool g_ShowCoordWindow;
 
 extern std::list<std::wstring> GrassPrefix;
 

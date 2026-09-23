@@ -50,8 +50,6 @@ HWND g_hGameWindow_ImGui = nullptr;
 tResizeBuffers o_ResizeBuffers = nullptr;
 tPresent1 o_Present1 = nullptr;
 
-bool g_ShowCoordWindow = false;
-
 std::list<std::wstring> GrassPrefix {
     L"Area_Ndkl_",
     L"Area_Nt_",

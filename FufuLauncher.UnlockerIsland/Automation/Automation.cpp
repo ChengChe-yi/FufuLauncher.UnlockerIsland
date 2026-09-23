@@ -515,6 +515,22 @@ void DoExpeditionLogic() {
     std::cout << "[Expedition] Auto expedition sequence completed/rolled back." << std::endl;
 }
 
+// The hash constant appears twice inside the dispatcher: in its binary-search
+// tree (followed by ja/jbe) and in the equality test that selects the case body
+// (followed by jz/jnz). Only the latter identifies the expedition entry point.
+static uintptr_t FindExpHashSite() {
+    uintptr_t cur = (uintptr_t)Scanner::ScanMainMod(Patterns::ExpHashCmp);
+    while (cur && cur < g_ModEnd) {
+        uint8_t op = 0, jcc = 0;
+        if (SEH_Read8(cur + 6, op) && SEH_Read8(cur + 7, jcc) &&
+            op == 0x0F && (jcc == 0x84 || jcc == 0x85)) {
+            return cur;
+        }
+        cur = (uintptr_t)Scanner::ScanRange((void*)(cur + 1), (size_t)(g_ModEnd - (cur + 1)), Patterns::ExpHashCmp);
+    }
+    return 0;
+}
+
 void InitExpedition() {
     if (!g_ModBase) {
         HMODULE hMod = GetModuleHandle(nullptr);
@@ -527,7 +543,7 @@ void InitExpedition() {
 
     AddVectoredExceptionHandler(1, ExpVeh);
     
-    uintptr_t hashCmp = (uintptr_t)Scanner::ScanMainMod(Patterns::ExpHashCmp);
+    uintptr_t hashCmp = FindExpHashSite();
     if (!hashCmp) {
         std::cout << "[EXP] ExpHashCmp pattern not found" << std::endl;
         return;
@@ -536,13 +552,13 @@ void InitExpedition() {
     
     uintptr_t tailJmp = 0;
     uint8_t jccOp = 0;
-    if (SEH_Read8(hashCmp + 7, jccOp) && jccOp == 0x84) { // 0F 84 = jz
-        int32_t jzRel = 0;
-        if (SEH_Read32(hashCmp + 8, jzRel)) {
-            // 0F 84 rel32
-            uintptr_t caseBody = hashCmp + 12 + (uintptr_t)jzRel;
-            tailJmp = FindLocal(caseBody, caseBody + 0x200, Patterns::ExpTailJmp);
-        }
+    int32_t jzRel = 0;
+    if (SEH_Read8(hashCmp + 7, jccOp) && SEH_Read32(hashCmp + 8, jzRel)) {
+        // jz (0F 84): the case body is the branch target;
+        // jnz (0F 85): it falls through, since the mismatch is what branches away.
+        uintptr_t caseBody = (jccOp == 0x84) ? hashCmp + 12 + (uintptr_t)jzRel
+                                             : hashCmp + 12;
+        tailJmp = FindLocal(caseBody, caseBody + 0x200, Patterns::ExpTailJmp);
     }
     if (!tailJmp) {
         std::cout << "[EXP] Tail jmp not found" << std::endl;
