@@ -96,8 +96,49 @@ namespace Patterns {
         // 48 89 5C 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2 48 8B 5C 24 ? 48 83 C4 20 5F E9 ? ? ? ? 48 8B CB E8 ? ? ? ? CC
     }
     
+    /*  7.0 old
+    namespace CN {
+        inline constexpr const char* GetActiveOffset = ""; //does not exist
+        inline constexpr const char* GetComponent = ""; //does not exist
+        inline constexpr const char* GetText = "190A4300"; 
+        inline constexpr const char* ClockPageOkOffset = "101193D0"; 
+        inline constexpr const char* ClockPageCloseOffset = "EE03560"; 
+        inline constexpr const char* ClockPageFinishOffset = "101181C0"; 
+        inline constexpr const char* ClockPageBackOffset = "101151B0"; 
+        inline constexpr const char* TouchInputOffset = "9DB42B0"; 
+        inline constexpr const char* InnerDispatcherOffset = "E648A10"; 
+        inline constexpr const char* EventCameraOffset = ""; //does not exist
+        inline constexpr const char* DamageColorA = "1309AD50"; 
+        inline constexpr const char* DamageColorB = "1309C460"; 
+        inline constexpr const char* DamageColor1 = "1309C3F0"; 
+        inline constexpr const char* DamageColor2 = "1309C2E0"; 
+        inline constexpr const char* DamageColor3 = "1309C670";
+        inline constexpr const char* DamageColor4 = "1309C270";
+        inline constexpr const char* UpdateInnerTargetOffset = "6DE13F0";
+        inline constexpr const char* SetActiveOffset = "13D8580";
+    }
 
-
+    namespace OS {
+        inline constexpr const char* GetActiveOffset = ""; //does not exist
+        inline constexpr const char* GetComponent = ""; //does not exist
+        inline constexpr const char* GetText = "19086640"; 
+        inline constexpr const char* ClockPageOkOffset = "100FF760";
+        inline constexpr const char* ClockPageCloseOffset = "EDEBCE0";
+        inline constexpr const char* ClockPageFinishOffset = "100FDC70";
+        inline constexpr const char* ClockPageBackOffset = "100FC930";
+        inline constexpr const char* TouchInputOffset = "9D976C0";
+        inline constexpr const char* InnerDispatcherOffset = "E291D10";
+        inline constexpr const char* EventCameraOffset = "70D9930"; //special need 
+        inline constexpr const char* DamageColorA = "1307CFB0";
+        inline constexpr const char* DamageColorB = "1307C960";
+        inline constexpr const char* DamageColor1 = "1307C8F0";
+        inline constexpr const char* DamageColor2 = "1307CAB0";
+        inline constexpr const char* DamageColor3 = "1307CD30";
+        inline constexpr const char* DamageColor4 = "1307CA40";
+        inline constexpr const char* UpdateInnerTargetOffset = "6DDF9E0";
+        inline constexpr const char* SetActiveOffset = "13D8580";
+    }
+    */
     
     namespace OS {
         inline constexpr const char* GetActiveOffset = ""; //does not exist - resolved by Patterns::GetActive (unique hit RVA 6C73543 in 7.1)
