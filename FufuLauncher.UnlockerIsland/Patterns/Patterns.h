@@ -63,15 +63,12 @@ namespace Patterns {
         inline constexpr const char* ClockPageOkOffset = "10DCB3B0";
         // 56 57 55 53 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 80 BE ? ? ? ? ? 74 ? 48 83 C4 28 5B 5D 5F 5E C3 48 8B 86
         inline constexpr const char* ClockPageCloseOffset = "1258D7E0";
-        // NOT UNIQUE (3 hits) - sibling page classes share this prologue; offset is authoritative
         // 56 57 53 48 83 EC 20 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8B 8E ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 83 79 ? ? 7E ? 48 8B 15
         inline constexpr const char* ClockPageFinishOffset = "10DCD690";
-        // NOT UNIQUE (2 hits) - offset is authoritative
         // 56 48 83 EC 30 48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 85 D2 0F 84 ? ? ? ? 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 89 D1 31 D2 41 B8 03 00 00 00 E8
         inline constexpr const char* ClockPageBackOffset = "10DC8A20";
         // 56 57 48 83 EC 38 0F 29 74 24 ? 48 89 CE 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? C6 86
         inline constexpr const char* TouchInputOffset = "9669C20";
-        // NOT UNIQUE (2 hits) - the other hit is a sibling build of the same class; offset is authoritative
         // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 48 8B 05 ? ? ? ? 0F 85 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 0F 84 ? ? ? ? 48 8B 15
         inline constexpr const char* InnerDispatcherOffset = "A62C240";
         // 41 57 41 56 41 55 41 54 56 57 55 53 48 81 EC 08 01 00 00 4C 89 CD 4C 89 C7 48 89 D3 48 89 CA
@@ -91,8 +88,6 @@ namespace Patterns {
         inline constexpr const char* UpdateInnerTargetOffset = "7089120";
         // 56 57 55 53 48 81 EC C8 00 00 00 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 89 CE 80 B9 ? ? ? ? ? 74 ? F3 0F 10 B6 ? ? ? ? 8B 86 ? ? ? ? 85 C0 75 ? E9 ? ? ? ? F3 0F 10 35 ? ? ? ? 8B 86
         inline constexpr const char* SetActiveOffset = "1452EE0";
-        // NOT UNIQUE (2 hits) - native .text impl, not in the managed dump; managed GameObject.SetActive
-        // stub (RVA 19C9B800) is a bare jmp to this address
         // 48 89 5C 24 ? 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2 48 8B 5C 24 ? 48 83 C4 20 5F E9 ? ? ? ? 48 8B CB E8 ? ? ? ? CC
     }
     
@@ -141,42 +136,25 @@ namespace Patterns {
     */
     
     namespace OS {
-        inline constexpr const char* GetActiveOffset = ""; //does not exist - resolved by Patterns::GetActive (unique hit RVA 6C73543 in 7.1)
+        inline constexpr const char* GetActiveOffset = ""; //does not exist
         inline constexpr const char* GetComponent = ""; //does not exist
         inline constexpr const char* GetText = "19CE4B60";
         // 48 8B 81 E0 00 00 00 C3 0F 1F 84 00 ? ? ? ? 56 57 48 83 EC 28 48 89 CE 48 85 D2 0F 84
         inline constexpr const char* ClockPageOkOffset = "10D9E7B0";
         // 56 57 55 53 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 80 BE ? ? ? ? ? 74 ? 48 83 C4 28 5B 5D 5F 5E C3 48 8B 86
-        // verified instruction-by-instruction: 149/150 match, guard byte field 0x255(cn) -> 0x251(os)
         inline constexpr const char* ClockPageCloseOffset = "1255F2C0";
-        // NOT UNIQUE in 7.1 (3 sibling pages share the prologue); this one selected by full-body
-        // fingerprint (instance fields included): 125/125 instructions of the CN body match
         // 56 57 53 48 83 EC 20 48 89 CE 80 3D ? ? ? ? ? 0F 85 ? ? ? ? 48 8B 8E 10 02 00 00 48 85 C9 0F 84
         inline constexpr const char* ClockPageFinishOffset = "10DA1620";
-        // TWIN (byte-identical copies at 10DA1620 and 10DA1A50; CN has the same twin pair at
-        // 10DCD690/10DCDBE0). Picked the first one, matching the CN authoritative offset; the
-        // surrounding function-size chain (prev 3B5, next 15E) also maps to this address.
         // 56 48 83 EC 30 48 8B 05 ? ? ? ? 48 8B 90 ? ? ? ? 48 85 D2 0F 84 ? ? ? ? 48 89 CE 80 3D
         inline constexpr const char* ClockPageBackOffset = "10D9FED0";
         // 56 57 48 83 EC 38 0F 29 74 24 ? 48 89 CE 80 3D ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 85 ? ? ? ? C6 86 55 02 00 00 01
-        // other prologue-matching siblings in 7.1 are different classes (score <0.42); this one scores
-        // 145/150, only the 0x255 -> 0x251 guard byte differs
         inline constexpr const char* TouchInputOffset = "966B2D0";
-        // NOT UNIQUE (near-copy at 1297F7E0, 73% match - sibling class); this one is the byte twin:
-        // 149/150 instructions match, only static field offsets differ (0x9C70->0x9CB0, 0x9CA0->0x9CC0,
-        // 0x9CF0->0xA030, 0x498->0x268, 0x256D0->0x24F40, 0x2A6670->0x2C5BE0)
         // 56 57 48 83 EC 28 48 89 CE 80 3D ? ? ? ? ? 48 8B 05 ? ? ? ? 0F 85 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 0F 84
         inline constexpr const char* InnerDispatcherOffset = "A64CE00";
         // 41 57 41 56 41 55 41 54 56 57 55 53 48 81 EC 08 01 00 00 4C 89 CD 4C 89 C7 48 89 D3 48 89 CA
-        // verified: 509/510 bytes identical (hash constants incl. B9 C5 9D 1C 81 and 69 CD 93 01 00 01 match),
-        // only one field differs: 0x4DC(cn) -> 0x424(os)
         inline constexpr const char* EventCameraOffset = "73AC8E0"; //special need
         // 41 57 41 56 56 57 55 53 48 83 EC 48 48 89 D7 49 89 CE 80 3D ? ? ? ? 00 0F 85 ? ? ? ? 80
-        // same unique signature hit as the runtime scan; 129/150 instructions match CN counterpart,
-        // divergences are only element-stride indexed accesses (0x44/0x40, 0x1D0/0x5C)
         inline constexpr const char* DamageColorA = "13BA5720";
-        // caller shape, instance fields verified; class-static fields differ by build
-        // (0x256D0/0x222E40 in cn)
         // 56 57 53 48 83 EC 40 44 89 CF 4C 89 C3 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 0D ? ? ? ? 80 B9 C7 00 00 00 00 74 ? B9 35 0E 00 00 E8
         inline constexpr const char* DamageColorB = "13BA4A70";
         // 56 57 53 48 83 EC 40 44 89 CB 4C 89 C7 48 89 CE 80 3D ? ? ? ? ? 75 ? 48 8B 0D ? ? ? ? 80 B9 C7 00 00 00 00 74 ? B9 35 0E 00 00 E8
@@ -190,11 +168,8 @@ namespace Patterns {
         // 56 48 83 EC 30 45 89 C1 48 89 D0 48 89 CE 80 3D ? ? ? ? ? 75 ? 4C 8B 40 40 48 8D 4C 24 ? 48 89 C2
         inline constexpr const char* UpdateInnerTargetOffset = "7085E10";
         // 56 57 55 53 48 81 EC C8 00 00 00 44 0F 29 84 24 ? ? ? ? 0F 29 BC 24 ? ? ? ? 0F 29 B4 24 ? ? ? ?
-        // verified: 429/429 concrete bytes match (fields 0x168/0x170/0x194/0x198/0x1A8/0xB0/0xB4 all identical)
         inline constexpr const char* SetActiveOffset = "1451EE0";
         // 48 89 5C 24 08 57 48 83 EC 20 0F B6 FA 48 8B D9 48 85 C9 74 ? E8 ? ? ? ? 48 85 C0 74 ? 40 84 FF 48 8B C8 0F 95 C2
-        // shape is generic (45 hits); this one confirmed by the native getter that follows it at +0x40
-        // (0F B6 80 F6 01 00 00) and by a full 150/150 instruction match with the CN implementation
     }
     
     
