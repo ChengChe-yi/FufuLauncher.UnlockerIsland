@@ -55,6 +55,48 @@ namespace Patterns {
 
 
 
+    inline constexpr const char* FreeCamCameraGetMain =
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "48 8B 05 ? ? ? ? 48 8B 80 ? ? ? ? 48 85 C0 74 12";
+
+    inline constexpr const char* FreeCamComponentGetTransform =
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 56 48 83 EC 20 48 89 D6 E8 ? ? ? ?";
+
+    inline constexpr const char* FreeCamTransformSetPosition =
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 44 89 C2 49 89 F0 E8 ? ? ? ? "
+        "48 89 F0 48 83 C4 20 5E C3 0F 1F 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 56";
+
+    inline constexpr const char* FreeCamTransformSetRotation =
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50 48 89 D0 48 89 CE 0F 57 C0 0F 29 44 24 30 "
+        "48 8D 54 24 30 48 89 C1 E8 ? ? ? ? 0F 28 44 24 30 0F 29 44 24 40 0F 29 44 24 30 C7 44 24 28 00 00 00 00 "
+        "48 C7 44 24 20 00 00 00 00 48 8D 4C 24 30 48 8D 54 24 20 E8 ? ? ? ? F3 0F 10 05 ? ? ? ? F3 0F 10 4C 24 24 "
+        "F3 0F 59 C8 F3 0F 10 54 24 20 F3 0F 59 D0 F3 0F 10 1D ? ? ? ? 0F 2E DA 76 ? F3 0F 10 25 ? ? ? ? EB ? "
+        "0F 2E 15 ? ? ? ? 76 ? F3 0F 10 25 ? ? ? ? F3 0F 58 D4 F3 0F 59 44 24 28 0F 2E D9 76 ? F3 0F 10 25 ? ? ? ? EB ? "
+        "0F 2E 0D ? ? ? ? 76 ? F3 0F 10 25 ? ? ? ? F3 0F 58 CC 0F 2E D8 76 ? F3 0F 10 1D ? ? ? ? EB ? "
+        "0F 2E 05 ? ? ? ? 76 ? F3 0F 10 1D ? ? ? ? F3 0F 58 C3 F3 0F 11 16 F3 0F 11 4E 04 F3 0F 11 46 08 "
+        "48 89 F0 48 83 C4 50 5E C3 0F 1F 40 00 56 48 83 EC 20 48 89 CE 0F 57 C0 0F 11 01 48 89 D1 48 89 F2 "
+        "E8 ? ? ? ? 48 89 F0 48 83 C4 20 5E C3 66 66 66 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50 "
+        "F3 0F 10 42 08 F3 0F 59 05 ? ? ? ? 48 89 CE F2 0F 10 0A 0F 59 0D ? ? ? ? 0F 13 4C 24 20 F3 0F 11 44 24 28 "
+        "0F 57 C0 0F 29 44 24 30 48 8D 4C 24 20 48 8D 54 24 30 E8 ? ? ? ? 0F 28 44 24 30 0F 29 44 24 40 "
+        "48 8D 54 24 40 48 89 F1 E8 ? ? ? ? 90 48 83 C4 50 5E C3 E9 ? ? ? ? 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 81 EC 80 00 00 00";
+
+    inline constexpr const char* FreeCamTransformGetRotation =
+        "56 48 83 EC 20 48 89 CE 0F 57 C0 0F 11 01 48 89 D1 48 89 F2 E8 ? ? ? ? "
+        "48 89 F0 48 83 C4 20 5E C3 66 66 66 66 66 2E 0F 1F 84 00 ? ? ? ? 56 48 83 EC 50";
+
+    inline constexpr const char* FreeCamTransformGetPosition =
+        "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 48 89 F2 E8 ? ? ? ? "
+        "48 89 F0 48 83 C4 20 5E C3 66 0F 1F 44 00 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 E9 ? ? ? ? 66 66 2E 0F 1F 84 ? ? ? ? 00 "
+        "56 48 83 EC 20 48 89 CE C7 41 ? ? ? ? 00 48 C7 01 00 00 00 00 48 89 D1 44 89 C2";
+
     namespace CN {
         inline constexpr const char* GetActiveOffset = ""; //does not exist
         inline constexpr const char* GetComponent = ""; //does not exist

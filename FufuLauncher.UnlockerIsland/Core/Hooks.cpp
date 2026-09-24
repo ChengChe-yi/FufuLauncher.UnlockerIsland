@@ -19,6 +19,9 @@ Licensed under the AGPL-3.0 License.
 #include "../Network/Network.h"
 #include "../Visual/Visual.h"
 #include "../UnderwaterMask/UnderwaterMask.h"
+#include "../FreeCamera/FreeCamera.h"
+#include "../Camera/Camera.h"
+#include "../CameraOffset/CameraOffset.h"
 #include "../PaimonFollow/PaimonFollow.h"
 #include <iostream>
 #include <atomic>
@@ -293,6 +296,88 @@ static bool CheckCanUseShortcut() {
     return true;
 }
 
+static bool IsActiveGameObject(const char* name) {
+    auto findString = (tFindString)p_FindString.load();
+    auto findGameObject = (tFindGameObject)p_FindGameObject.load();
+    auto getActive = (tGetActive)p_GetActive.load();
+    if (!IsValid(findString) || !IsValid(findGameObject)) return false;
+
+    bool active = false;
+    SafeInvoke([&] {
+        Il2CppString* objectName = findString(name);
+        if (!objectName) return;
+
+        void* gameObject = findGameObject(objectName);
+        if (!gameObject) return;
+
+        active = !IsValid(getActive) || getActive(gameObject);
+    });
+    return active;
+}
+
+static bool IsDialogueOrCutsceneActive() {
+    static ULONGLONG lastCheck = 0;
+    static bool cachedResult = false;
+
+    ULONGLONG now = GetTickCount64();
+    if (lastCheck != 0 && now - lastCheck < 1000) return cachedResult;
+    lastCheck = now;
+
+    cachedResult = IsActiveGameObject("TalkDialog") ||
+        IsActiveGameObject("TalkDialogV1") ||
+        IsActiveGameObject("InLevelCutScenePage");
+    return cachedResult;
+}
+
+static bool IsCameraSensitivePageActive() {
+    static ULONGLONG lastCheck = 0;
+    static bool cachedResult = false;
+
+    ULONGLONG now = GetTickCount64();
+    if (lastCheck != 0 && now - lastCheck < 100) return cachedResult;
+    lastCheck = now;
+
+    cachedResult = IsActiveGameObject("Canvas/Pages/InLevelMapPage") ||
+        IsActiveGameObject("InLevelMapPage") ||
+        IsActiveGameObject("Canvas/Pages/InLevelGachaPage") ||
+        IsActiveGameObject("InLevelGachaPage");
+    return cachedResult;
+}
+
+static std::atomic<bool> g_IsAimingCamera{ false };
+
+static void UpdateCameraFeatures() {
+    auto& cfg = Config::Get();
+    static const int cameraOffsetKey = cfg.camera_offset_key;
+    static bool previousCameraOffsetToggle = false;
+    bool cameraOffsetToggle = cameraOffsetKey != 0 &&
+        (GetAsyncKeyState(cameraOffsetKey) & 0x8000) != 0;
+    if (cameraOffsetToggle && !previousCameraOffsetToggle) {
+        cfg.enable_camera_offset = !cfg.enable_camera_offset;
+        if (!cfg.enable_camera_offset) CameraOffset::SuspendImmediately();
+    }
+    previousCameraOffsetToggle = cameraOffsetToggle;
+
+    if ((cfg.enable_camera_offset || FreeCamera::IsActive()) && IsCameraSensitivePageActive()) {
+        CameraOffset::SuspendImmediately();
+        Camera::Invalidate();
+        return;
+    }
+
+    Camera::Tick();
+    if (FreeCamera::IsActive()) {
+        CameraOffset::SuspendImmediately();
+        FreeCamera::Tick();
+        return;
+    }
+
+    const bool isAimingCamera = g_IsAimingCamera.load(std::memory_order_relaxed);
+    if (isAimingCamera) CameraOffset::SuspendImmediately();
+    const bool dialogueOrCutsceneActive = cfg.enable_camera_offset &&
+        IsDialogueOrCutsceneActive();
+    CameraOffset::Tick(!isAimingCamera && !dialogueOrCutsceneActive, false);
+}
+
 int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     if (!g_GameUpdateInit.load()) g_GameUpdateInit.store(true);
 
@@ -366,6 +451,7 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     // Preserve the game's incoming FOV before an override changes it. The
     // existing <= 30 threshold is the plugin's stable aiming-camera signal.
     bool isAimingCamera = value <= 30.0f;
+    g_IsAimingCamera.store(isAimingCamera, std::memory_order_relaxed);
     bool pass_check = !cfg.enable_fov_limit_check || !isAimingCamera;
     if (pass_check && cfg.enable_fov_override) {
         value = cfg.fov_value;
@@ -373,6 +459,7 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
 
     auto orig = (tChangeFov)o_ChangeFov.load();
     int32_t ret = orig ? orig(__this, value) : 0;
+    UpdateCameraFeatures();
     return ret;
 }
 
@@ -609,6 +696,10 @@ bool Hooks::Init() {
     }
 
     UnderwaterMask::Init();
+
+    Camera::Init();
+    CameraOffset::Init();
+    FreeCamera::Init();
 
     PaimonFollow::Init();
     

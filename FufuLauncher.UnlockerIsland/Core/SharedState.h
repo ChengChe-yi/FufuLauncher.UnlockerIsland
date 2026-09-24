@@ -17,6 +17,8 @@ Licensed under the AGPL-3.0 License.
 
 struct Il2CppString;
 
+struct Vector3 { float x, y, z; };
+
 typedef int32_t (WINAPI *tGetFrameCount)();
 typedef int32_t (WINAPI *tSetFrameCount)(int32_t);
 typedef void (WINAPI *tSwitchInput)(void*);

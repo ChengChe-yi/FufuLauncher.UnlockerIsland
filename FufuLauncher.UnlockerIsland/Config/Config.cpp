@@ -115,6 +115,30 @@ namespace Config {
         
         g_Config.fov_value = ReadFloat("FovValue", 45.0f, file);
 
+        g_Config.enable_camera_offset = ReadInt("EnableCameraOffset", 0, file);
+        g_Config.camera_offset_key = ReadInt("CameraOffsetKey", VK_F6, file);
+        g_Config.camera_offset_x = ReadFloat("CameraOffsetX", 0.0f, file);
+        g_Config.camera_offset_z = ReadFloat("CameraOffsetZ", 0.0f, file);
+        g_Config.camera_offset_y = ReadFloat("CameraOffsetY",
+            ReadFloat("CameraHeightOffset", 0.0f, file), file);
+
+        auto clampCameraOffset = [](float value) {
+            if (value < -5.0f) return -5.0f;
+            if (value > 5.0f) return 5.0f;
+            return value;
+        };
+        g_Config.camera_offset_x = clampCameraOffset(g_Config.camera_offset_x);
+        g_Config.camera_offset_z = clampCameraOffset(g_Config.camera_offset_z);
+        g_Config.camera_offset_y = clampCameraOffset(g_Config.camera_offset_y);
+
+        g_Config.camera_height_transition_speed =
+            ReadFloat("CameraHeightTransitionSpeed", 8.0f, file);
+        if (g_Config.camera_height_transition_speed < 0.1f) {
+            g_Config.camera_height_transition_speed = 0.1f;
+        } else if (g_Config.camera_height_transition_speed > 30.0f) {
+            g_Config.camera_height_transition_speed = 30.0f;
+        }
+
         g_Config.hide_quest_banner = ReadInt("HideQuestBanner", 0, file);
         
         g_Config.hide_uid = ReadInt("HideUID", 0, file);
@@ -186,6 +210,13 @@ namespace Config {
         } else if (g_Config.render_scale_value > 3.00f) {
             g_Config.render_scale_value = 3.00f;
         }
+
+        g_Config.enable_free_cam = ReadInt("EnableFreeCam", 0, file);
+        g_Config.free_cam_key = ReadInt("FreeCamKey", VK_INSERT, file);
+        g_Config.free_cam_lock_key = ReadInt("FreeCamLockKey", VK_DELETE, file);
+        g_Config.free_cam_move_speed = ReadFloat("FreeCamMoveSpeed", 8.0f, file);
+        g_Config.free_cam_sprint_mult = ReadFloat("FreeCamSprintMult", 3.0f, file);
+        g_Config.free_cam_mouse_sensitivity = ReadFloat("FreeCamMouseSensitivity", 0.12f, file);
 
         g_Config.enable_paimon_follow = ReadInt("EnablePaimonFollow", 0, file);
     }
