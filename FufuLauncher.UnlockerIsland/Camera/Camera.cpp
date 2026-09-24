@@ -153,6 +153,12 @@ namespace Camera {
         }
     }
 
+    void Invalidate() {
+        g_Transform = nullptr;
+        g_SecondaryTransform = nullptr;
+        g_LastRefresh = 0;
+    }
+
     bool IsReady() {
         return g_Ready.load(std::memory_order_relaxed);
     }

@@ -11,6 +11,7 @@ namespace Camera {
 
     bool Init();
     void Tick();
+    void Invalidate();
     bool IsReady();
     void* GetTransform();
 

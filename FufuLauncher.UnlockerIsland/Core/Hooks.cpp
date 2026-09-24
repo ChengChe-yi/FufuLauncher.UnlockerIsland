@@ -329,6 +329,21 @@ static bool IsDialogueOrCutsceneActive() {
     return cachedResult;
 }
 
+static bool IsCameraSensitivePageActive() {
+    static ULONGLONG lastCheck = 0;
+    static bool cachedResult = false;
+
+    ULONGLONG now = GetTickCount64();
+    if (lastCheck != 0 && now - lastCheck < 100) return cachedResult;
+    lastCheck = now;
+
+    cachedResult = IsActiveGameObject("Canvas/Pages/InLevelMapPage") ||
+        IsActiveGameObject("InLevelMapPage") ||
+        IsActiveGameObject("Canvas/Pages/InLevelGachaPage") ||
+        IsActiveGameObject("InLevelGachaPage");
+    return cachedResult;
+}
+
 static std::atomic<bool> g_IsAimingCamera{ false };
 
 static void UpdateCameraFeatures() {
@@ -342,6 +357,12 @@ static void UpdateCameraFeatures() {
         if (!cfg.enable_camera_offset) CameraOffset::SuspendImmediately();
     }
     previousCameraOffsetToggle = cameraOffsetToggle;
+
+    if ((cfg.enable_camera_offset || FreeCamera::IsActive()) && IsCameraSensitivePageActive()) {
+        CameraOffset::SuspendImmediately();
+        Camera::Invalidate();
+        return;
+    }
 
     Camera::Tick();
     if (FreeCamera::IsActive()) {
