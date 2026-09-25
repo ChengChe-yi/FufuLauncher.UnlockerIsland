@@ -15,6 +15,7 @@ bool WINAPI hk_EventCamera(void* a, void* b);
 void WINAPI hk_CraftEntry(void* _this);
 void WINAPI hk_OpenTeam();
 void WINAPI hk_SetActive(void* pThis, bool active);
+bool IsCameraPageActiveFromEvents();
 auto hk_DisplayFog(__int64 a1, __int64 a2) -> __int64;
 void InitExpHandlerPrologueSafe();
 
