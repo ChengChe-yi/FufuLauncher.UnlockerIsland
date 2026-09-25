@@ -325,6 +325,16 @@ static Il2CppString* SafeGetName(tGetName getName, void* obj) {
     __except (EXCEPTION_EXECUTE_HANDLER) { return nullptr; }
 }
 
+static std::atomic<bool> g_MapPageActive{ false };
+static std::atomic<bool> g_GachaPageActive{ false };
+static std::atomic<void*> g_MapPageObject{ nullptr };
+static std::atomic<void*> g_GachaPageObject{ nullptr };
+
+bool IsCameraPageActiveFromEvents() {
+    return g_MapPageActive.load(std::memory_order_relaxed) ||
+        g_GachaPageActive.load(std::memory_order_relaxed);
+}
+
 void WINAPI hk_SetActive(void* pThis, bool active) {
     tSetActive orig = (tSetActive)o_SetActive.load();
     if (!orig) return;
@@ -334,7 +344,7 @@ void WINAPI hk_SetActive(void* pThis, bool active) {
     // Only used for hide-grass. Profile UID/birthday are now hidden by the
     // SetupPlayerProfilePage hook instead (see ApplyProfilePrivacyState).
     Il2CppString* name = nullptr;
-    if (active && cfg.hide_grass) {
+    if (active) {
         auto getName = (tGetName)p_GetName.load();
         if (getName) name = SafeGetName(getName, pThis);
     }
@@ -358,7 +368,21 @@ void WINAPI hk_SetActive(void* pThis, bool active) {
         }
     }
 
+    const bool isMapPage = active
+        ? objectName && wcscmp(objectName, L"InLevelMapPage") == 0
+        : pThis && pThis == g_MapPageObject.load(std::memory_order_relaxed);
+    const bool isGachaPage = active
+        ? objectName && wcscmp(objectName, L"InLevelGachaPage") == 0
+        : pThis && pThis == g_GachaPageObject.load(std::memory_order_relaxed);
     orig(pThis, active);
+    if (isMapPage) {
+        g_MapPageObject.store(active ? pThis : nullptr, std::memory_order_relaxed);
+        g_MapPageActive.store(active, std::memory_order_relaxed);
+    }
+    if (isGachaPage) {
+        g_GachaPageObject.store(active ? pThis : nullptr, std::memory_order_relaxed);
+        g_GachaPageActive.store(active, std::memory_order_relaxed);
+    }
 }
 
 static SafeFogBuffer g_fogBuf = { 0 };

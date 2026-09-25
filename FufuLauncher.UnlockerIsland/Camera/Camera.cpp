@@ -121,7 +121,7 @@ namespace Camera {
 
         std::cout << "   -> Shared camera access ready." << std::endl;
         if (!g_fnGetRotation) {
-            std::cout << "   -> [WARN] Camera rotation pattern not found; X/Z shoulder offsets are disabled." << std::endl;
+            std::cout << "   -> [WARN] Camera rotation pattern not found; horizontal camera-relative offsets are disabled." << std::endl;
         }
         return true;
     }

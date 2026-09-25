@@ -330,18 +330,7 @@ static bool IsDialogueOrCutsceneActive() {
 }
 
 static bool IsCameraSensitivePageActive() {
-    static ULONGLONG lastCheck = 0;
-    static bool cachedResult = false;
-
-    ULONGLONG now = GetTickCount64();
-    if (lastCheck != 0 && now - lastCheck < 100) return cachedResult;
-    lastCheck = now;
-
-    cachedResult = IsActiveGameObject("Canvas/Pages/InLevelMapPage") ||
-        IsActiveGameObject("InLevelMapPage") ||
-        IsActiveGameObject("Canvas/Pages/InLevelGachaPage") ||
-        IsActiveGameObject("InLevelGachaPage");
-    return cachedResult;
+    return IsCameraPageActiveFromEvents();
 }
 
 static std::atomic<bool> g_IsAimingCamera{ false };
@@ -350,6 +339,7 @@ static void UpdateCameraFeatures() {
     auto& cfg = Config::Get();
     static const int cameraOffsetKey = cfg.camera_offset_key;
     static bool previousCameraOffsetToggle = false;
+    static bool previousFreeCameraActive = false;
     bool cameraOffsetToggle = cameraOffsetKey != 0 &&
         (GetAsyncKeyState(cameraOffsetKey) & 0x8000) != 0;
     if (cameraOffsetToggle && !previousCameraOffsetToggle) {
@@ -358,14 +348,23 @@ static void UpdateCameraFeatures() {
     }
     previousCameraOffsetToggle = cameraOffsetToggle;
 
-    if ((cfg.enable_camera_offset || FreeCamera::IsActive()) && IsCameraSensitivePageActive()) {
+    const bool freeCameraActive = FreeCamera::IsActive();
+    if (previousFreeCameraActive && !freeCameraActive) {
+        CameraOffset::SuspendImmediately();
+        Camera::Invalidate();
+        previousFreeCameraActive = false;
+        return;
+    }
+    previousFreeCameraActive = freeCameraActive;
+
+    if ((cfg.enable_camera_offset || freeCameraActive) && IsCameraSensitivePageActive()) {
         CameraOffset::SuspendImmediately();
         Camera::Invalidate();
         return;
     }
 
     Camera::Tick();
-    if (FreeCamera::IsActive()) {
+    if (freeCameraActive) {
         CameraOffset::SuspendImmediately();
         FreeCamera::Tick();
         return;

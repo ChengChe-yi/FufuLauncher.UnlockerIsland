@@ -20,9 +20,9 @@ namespace CameraOffset {
         Vector3 g_LastOutput = { 0, 0, 0 };
         Vector3 g_CurrentOffset = { 0, 0, 0 };
         ULONGLONG g_LastTransitionTick = 0;
-        bool g_ShoulderBasisValid = false;
-        Vector3 g_LastShoulderRight = { 1, 0, 0 };
-        Vector3 g_LastShoulderBack = { 0, 0, -1 };
+        bool g_HorizontalBasisValid = false;
+        Vector3 g_LastCameraRight = { 1, 0, 0 };
+        Vector3 g_LastCameraBack = { 0, 0, -1 };
 
         bool NearlyEqual(float a, float b) {
             return fabsf(a - b) <= 0.0005f;
@@ -70,16 +70,16 @@ namespace CameraOffset {
             return g_CurrentOffset;
         }
 
-        bool UpdateShoulderBasis() {
+        bool UpdateHorizontalBasis() {
             Camera::Quaternion rotation{};
-            if (!Camera::GetRotation(rotation)) return g_ShoulderBasisValid;
+            if (!Camera::GetRotation(rotation)) return g_HorizontalBasisValid;
 
             float normSquared = rotation.x * rotation.x +
                 rotation.y * rotation.y + rotation.z * rotation.z +
                 rotation.w * rotation.w;
             if (!std::isfinite(normSquared) || normSquared < 0.25f ||
                 normSquared > 4.0f) {
-                return g_ShoulderBasisValid;
+                return g_HorizontalBasisValid;
             }
 
             float inverseNorm = 1.0f / sqrtf(normSquared);
@@ -92,24 +92,24 @@ namespace CameraOffset {
             right.y = 0.0f;
             float horizontalLength = sqrtf(right.x * right.x + right.z * right.z);
             if (!std::isfinite(horizontalLength) || horizontalLength < 0.001f) {
-                return g_ShoulderBasisValid;
+                return g_HorizontalBasisValid;
             }
             right.x /= horizontalLength;
             right.z /= horizontalLength;
 
-            g_LastShoulderRight = right;
-            g_LastShoulderBack = { right.z, 0.0f, -right.x };
-            g_ShoulderBasisValid = true;
+            g_LastCameraRight = right;
+            g_LastCameraBack = { right.z, 0.0f, -right.x };
+            g_HorizontalBasisValid = true;
             return true;
         }
 
         Vector3 ResolveWorldOffset(const Vector3& cameraOffset) {
             Vector3 worldOffset{ 0.0f, cameraOffset.y, 0.0f };
-            if (UpdateShoulderBasis()) {
-                worldOffset.x += g_LastShoulderRight.x * cameraOffset.x +
-                    g_LastShoulderBack.x * cameraOffset.z;
-                worldOffset.z += g_LastShoulderRight.z * cameraOffset.x +
-                    g_LastShoulderBack.z * cameraOffset.z;
+            if (UpdateHorizontalBasis()) {
+                worldOffset.x += g_LastCameraRight.x * cameraOffset.x +
+                    g_LastCameraBack.x * cameraOffset.z;
+                worldOffset.z += g_LastCameraRight.z * cameraOffset.x +
+                    g_LastCameraBack.z * cameraOffset.z;
             }
             return worldOffset;
         }
@@ -167,6 +167,7 @@ namespace CameraOffset {
         ResetAppliedOffset(true);
         g_CurrentOffset = { 0.0f, 0.0f, 0.0f };
         g_LastTransitionTick = 0;
+        g_HorizontalBasisValid = false;
     }
 
     void Tick(bool allowGameplayCameraOffset, bool cameraOwnedByAnotherFeature) {
