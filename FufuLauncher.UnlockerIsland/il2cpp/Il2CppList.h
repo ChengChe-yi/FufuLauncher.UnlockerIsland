@@ -34,4 +34,22 @@ public:
     inline int Count() {
         return size;
     }
+
+    inline Il2CppArray<T>* Items() {
+        return array;
+    }
+
+    inline void IncrementVersion() {
+        ++version;
+    }
+
+    inline void RemoveAt(int index) {
+        if (!array || index < 0 || index >= size) return;
+        for (int i = index; i + 1 < size; ++i) {
+            array->Set(i, array->Get(i + 1));
+        }
+        array->Set(size - 1, T{});
+        --size;
+        ++version;
+    }
 };

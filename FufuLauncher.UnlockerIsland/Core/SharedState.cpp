@@ -9,6 +9,7 @@ std::atomic<void*> o_SetFrameCount{ nullptr };
 std::atomic<void*> o_ChangeFov{ nullptr };
 std::atomic<void*> o_SetupQuestBanner{ nullptr };
 std::atomic<void*> o_SetupPlayerProfilePage{ nullptr };
+std::atomic<void*> o_SetupResinList{ nullptr };
 std::atomic<void*> o_ShowDamage{ nullptr };
 std::atomic<void*> o_CraftEntry{ nullptr };
 std::atomic<void*> o_EventCamera{ nullptr };

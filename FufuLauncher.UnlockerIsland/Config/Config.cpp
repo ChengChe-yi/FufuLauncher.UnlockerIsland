@@ -144,6 +144,12 @@ namespace Config {
         g_Config.hide_quest_banner = ReadInt("HideQuestBanner", 0, file);
         
         g_Config.hide_uid = ReadInt("HideUID", 0, file);
+
+        g_Config.use_resin_000106 = ReadInt("ResinItem000106", 1, file);
+        g_Config.use_resin_000201 = ReadInt("ResinItem000201", 1, file);
+        g_Config.use_resin_107009 = ReadInt("ResinItem107009", 1, file);
+        g_Config.use_resin_107012 = ReadInt("ResinItem107012", 1, file);
+        g_Config.use_resin_220007 = ReadInt("ResinItem220007", 1, file);
         
         g_Config.disable_show_damage_text = ReadInt("DisableDamageText", 0, file);
         
