@@ -33,6 +33,12 @@ struct ModConfig {
     bool hide_quest_banner = false;
     
     bool hide_uid = false;
+
+    bool use_resin_000106 = true;
+    bool use_resin_000201 = true;
+    bool use_resin_107009 = true;
+    bool use_resin_107012 = true;
+    bool use_resin_220007 = true;
     
     bool disable_show_damage_text = false;
     
