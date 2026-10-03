@@ -31,8 +31,6 @@ std::atomic<void*> p_ClockPageFinish{ nullptr };
 std::atomic<void*> p_ClockPageBack{ nullptr };
 std::atomic<void*> p_CheckCanOpenMap{ nullptr };
 std::atomic<void*> p_GetName{ nullptr };
-std::atomic<void*> o_send{ nullptr };
-std::atomic<void*> o_sendto{ nullptr };
 std::atomic<void*> p_GetActive{ nullptr };
 std::atomic<void*> p_AvatarPaimonAppear{ nullptr };
 std::atomic<void*> p_StringNew{ nullptr };
@@ -45,11 +43,6 @@ std::atomic<bool> g_RequestCraft{ false };
 std::atomic<bool> g_TouchScreenInit{ false };
 
 unsigned char originalCheckCanOpenMapBytes[5] = {0};
-ID3D11DeviceContext* g_pd3dContext = nullptr;
-ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
-HWND g_hGameWindow_ImGui = nullptr;
-tResizeBuffers o_ResizeBuffers = nullptr;
-tPresent1 o_Present1 = nullptr;
 
 std::list<std::wstring> GrassPrefix {
     L"Area_Ndkl_",

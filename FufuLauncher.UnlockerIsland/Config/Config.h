@@ -65,14 +65,6 @@ struct ModConfig {
 
     bool dump_offsets = false;
 
-    bool block_network = false;
-
-    bool enable_network_toggle = false;
-    
-    int network_toggle_key = VK_F11;
-
-    bool is_currently_blocking = false;
-
     bool enable_fov_limit_check = true;
 
     bool hide_main_ui = false;
