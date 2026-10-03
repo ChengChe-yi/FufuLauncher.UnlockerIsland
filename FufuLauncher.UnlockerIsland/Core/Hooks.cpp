@@ -22,6 +22,7 @@ Licensed under the AGPL-3.0 License.
 #include "../FreeCamera/FreeCamera.h"
 #include "../Camera/Camera.h"
 #include "../CameraOffset/CameraOffset.h"
+#include "../CameraTweaks/CameraTweaks.h"
 #include "../PaimonFollow/PaimonFollow.h"
 #include <iostream>
 #include <atomic>
@@ -827,6 +828,8 @@ bool Hooks::Init() {
     Camera::Init();
     CameraOffset::Init();
     FreeCamera::Init();
+
+    CameraTweaks::Init();
 
     PaimonFollow::Init();
     
