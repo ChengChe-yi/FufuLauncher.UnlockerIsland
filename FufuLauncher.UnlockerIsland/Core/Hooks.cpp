@@ -16,7 +16,6 @@ Licensed under the AGPL-3.0 License.
 #include "../Automation/Automation.h"
 #include "../RainbowDamage/RainbowDamage.h"
 #include "../HideUI/HideUI.h"
-#include "../Network/Network.h"
 #include "../Visual/Visual.h"
 #include "../UnderwaterMask/UnderwaterMask.h"
 #include "../FreeCamera/FreeCamera.h"
@@ -49,7 +48,6 @@ static void TryInitTouchScreen() {
     }
 }
 #pragma comment(lib, "MinHook/libMinHook.x64.lib")
-#pragma comment(lib, "ws2_32.lib")
 
 using tSetCursor = HCURSOR(WINAPI*)(HCURSOR);
 static tSetCursor o_SetCursor = nullptr;
@@ -807,14 +805,6 @@ bool Hooks::Init() {
 
         CreateThread(nullptr, 0, RainbowDamageFeature::ColorCycleThread, nullptr, 0, nullptr);
         std::cout << "   -> Rainbow Damage Hooks Ready." << std::endl;
-    }
-
-    if (MH_CreateHookApi(L"ws2_32.dll", "send", (void*)hk_send, (void**)&o_send) == MH_OK) {
-        std::cout << "[SCAN] Hook send Ready." << '\n';
-    }
-
-    if (MH_CreateHookApi(L"ws2_32.dll", "sendto", (void*)hk_sendto, (void**)&o_sendto) == MH_OK) {
-        std::cout << "[SCAN] Hook sendto Ready." << '\n';
     }
 
     if (MH_CreateHookApi(L"user32.dll", "SetCursor", (void*)hk_SetCursor, (void**)&o_SetCursor) == MH_OK) {

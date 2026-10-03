@@ -149,7 +149,6 @@
         <ClInclude Include="Automation\Automation.h" />
         <ClInclude Include="RainbowDamage\RainbowDamage.h" />
         <ClInclude Include="HideUI\HideUI.h" />
-        <ClInclude Include="Network\Network.h" />
         <ClInclude Include="UnderwaterMask\UnderwaterMask.h" />
         <ClInclude Include="Visual\Visual.h" />
         <ClInclude Include="FreeCamera\FreeCamera.h" />
@@ -174,7 +173,6 @@
         <ClCompile Include="Automation\Automation.cpp" />
         <ClCompile Include="RainbowDamage\RainbowDamage.cpp" />
         <ClCompile Include="HideUI\HideUI.cpp" />
-        <ClCompile Include="Network\Network.cpp" />
         <ClCompile Include="UnderwaterMask\UnderwaterMask.cpp" />
         <ClCompile Include="Visual\Visual.cpp" />
         <ClCompile Include="FreeCamera\FreeCamera.cpp" />

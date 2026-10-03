@@ -11,9 +11,6 @@ Licensed under the AGPL-3.0 License.
 #include <mutex>
 #include <vector>
 #include <list>
-#include <d3d11.h>
-#include <dxgi1_2.h>
-#include <winsock2.h>
 
 struct Il2CppString;
 
@@ -40,13 +37,8 @@ typedef __int64 (*tDisplayFog)(__int64, __int64);
 typedef void* (WINAPI *tPlayerPerspective)(void*, float, void*);
 typedef int32_t (WINAPI *tSetSyncCount)(bool);
 typedef __int64 (WINAPI *tGameUpdate)(__int64, const char*);
-typedef HRESULT(__stdcall* tPresent)(IDXGISwapChain*, UINT, UINT);
-typedef HRESULT(__stdcall* tResizeBuffers)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
 typedef BOOL (WINAPI* tQueryPerformanceCounter)(LARGE_INTEGER*);
 typedef ULONGLONG (WINAPI* tGetTickCount64)();
-typedef int (WSAAPI* tSend)(SOCKET s, const char* buf, int len, int flags);
-typedef int (WSAAPI* tSendTo)(SOCKET s, const char* buf, int len, int flags, const sockaddr* to, int tolen);
-typedef HRESULT(__stdcall* tPresent1)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT PresentFlags, const DXGI_PRESENT_PARAMETERS* pPresentParameters);
 typedef bool (WINAPI *tGetActive)(void*);
 typedef void (WINAPI *tAvatarPaimonAppear)(void*, void*, bool);
 typedef void* (*tGetComponent)(void*, Il2CppString*);
@@ -87,8 +79,6 @@ extern std::atomic<void*> p_ClockPageFinish;
 extern std::atomic<void*> p_ClockPageBack;
 extern std::atomic<void*> p_CheckCanOpenMap;
 extern std::atomic<void*> p_GetName;
-extern std::atomic<void*> o_send;
-extern std::atomic<void*> o_sendto;
 extern std::atomic<void*> p_GetActive;
 extern std::atomic<void*> p_AvatarPaimonAppear;
 extern std::atomic<void*> p_StringNew;
@@ -101,11 +91,6 @@ extern std::atomic<bool> g_RequestCraft;
 extern std::atomic<bool> g_TouchScreenInit;
 
 extern unsigned char originalCheckCanOpenMapBytes[5];
-extern ID3D11DeviceContext* g_pd3dContext;
-extern ID3D11RenderTargetView* g_mainRenderTargetView;
-extern HWND g_hGameWindow_ImGui;
-extern tResizeBuffers o_ResizeBuffers;
-extern tPresent1 o_Present1;
 
 extern std::list<std::wstring> GrassPrefix;
 

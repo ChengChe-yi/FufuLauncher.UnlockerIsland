@@ -458,22 +458,6 @@ void MainWorker(HMODULE hMod) {
         }
         bool isFocused = (foregroundProcessId == GetCurrentProcessId());
 
-        static bool net_was_pressed = false;
-        bool net_is_pressed = (isFocused && (GetAsyncKeyState(cfg.network_toggle_key) & 0x8000));
-
-        if (cfg.enable_network_toggle && net_is_pressed && !net_was_pressed) {
-            cfg.is_currently_blocking = !cfg.is_currently_blocking;
-            
-            if (cfg.is_currently_blocking) {
-                Beep(300, 500); 
-                std::cout << "[Network] >>> STATUS: DISCONNECTED (Blocking)" << '\n';
-            } else {
-                Beep(1000, 200); 
-                std::cout << "[Network] >>> STATUS: CONNECTED (Normal)" << '\n';
-            }
-        }
-        net_was_pressed = net_is_pressed;
-        
         if (isFocused && (GetAsyncKeyState(cfg.toggle_key) & 0x8000)) {
             Config::Load();
             Hooks::TriggerReloadPopup();
