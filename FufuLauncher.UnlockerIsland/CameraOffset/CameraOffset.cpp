@@ -51,6 +51,12 @@ namespace CameraOffset {
         }
 
         Vector3 AdvanceOffset(const Vector3& targetOffset, float transitionSpeed) {
+            if (Config::Get().disable_camera_blend) {
+                g_CurrentOffset = targetOffset;
+                g_LastTransitionTick = 0;
+                return g_CurrentOffset;
+            }
+
             ULONGLONG now = GetTickCount64();
             float deltaSeconds = 1.0f / 60.0f;
             if (g_LastTransitionTick != 0 && now > g_LastTransitionTick) {
@@ -194,7 +200,8 @@ namespace CameraOffset {
 
         if (cameraOwnedByAnotherFeature) {
             // Restore the untouched game camera before the owning feature
-            // writes its own transform. The internal offset still eases to zero.
+            // writes its own transform. The internal offset follows the global
+            // blend setting when returning to zero.
             ResetAppliedOffset(true);
             return;
         }

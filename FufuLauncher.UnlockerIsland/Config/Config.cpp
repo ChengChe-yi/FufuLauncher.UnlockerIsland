@@ -117,6 +117,9 @@ namespace Config {
         
         g_Config.fov_value = ReadFloat("FovValue", 45.0f, file);
 
+        g_Config.disable_camera_smooth = ReadInt("DisableCameraSmooth", 0, file);
+        g_Config.disable_camera_blend = ReadInt("DisableCameraBlend", 0, file);
+
         g_Config.enable_camera_offset = ReadInt("EnableCameraOffset", 0, file);
         g_Config.camera_offset_key = ReadInt("CameraOffsetKey", VK_F6, file);
         g_Config.camera_offset_x = ReadFloat("CameraOffsetX", 0.0f, file);

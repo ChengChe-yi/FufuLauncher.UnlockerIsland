@@ -21,6 +21,9 @@ struct ModConfig {
     
     float fov_value = 45.0f;
 
+    bool disable_camera_smooth = false;
+    bool disable_camera_blend = false;
+
     bool enable_camera_offset = false;
     int camera_offset_key = VK_F6;
     float camera_offset_x = 0.0f;
