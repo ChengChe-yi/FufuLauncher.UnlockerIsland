@@ -53,6 +53,54 @@ static void LogToFile(const std::string& msg) {
     }
 }
 
+static bool IsSystemModulePath(const std::string& path) {
+    char windowsDir[MAX_PATH];
+    UINT length = GetSystemWindowsDirectoryA(windowsDir, MAX_PATH);
+    if (length == 0 || length >= MAX_PATH) return false;
+
+    std::string prefix(windowsDir, length);
+    prefix += '\\';
+
+    return path.size() >= prefix.size() && _strnicmp(path.c_str(), prefix.c_str(), prefix.size()) == 0;
+}
+
+static void LogInjectedModules() {
+    HMODULE modules[1024];
+    DWORD needed = 0;
+    if (!EnumProcessModules(GetCurrentProcess(), modules, sizeof(modules), &needed)) {
+        LogToFile("Injected module enumeration failed, error " + std::to_string(GetLastError()));
+        return;
+    }
+
+    size_t count = needed / sizeof(HMODULE);
+    constexpr size_t kModuleCapacity = sizeof(modules) / sizeof(modules[0]);
+    if (count > kModuleCapacity) count = kModuleCapacity;
+
+    constexpr size_t kMaxLogged = 32;
+    HMODULE mainModule = GetModuleHandleA(nullptr);
+    std::vector<std::string> injected;
+
+    for (size_t i = 0; i < count; ++i) {
+        if (modules[i] == mainModule) continue;
+
+        char path[MAX_PATH];
+        if (GetModuleFileNameExA(GetCurrentProcess(), modules[i], path, MAX_PATH) == 0) continue;
+        if (IsSystemModulePath(path)) continue;
+
+        injected.emplace_back(path);
+    }
+
+    std::ostringstream log;
+    log << "Injected DLLs detected (non-system modules): " << injected.size();
+    for (size_t i = 0; i < injected.size() && i < kMaxLogged; ++i) {
+        log << "\n  " << injected[i];
+    }
+    if (injected.size() > kMaxLogged) {
+        log << "\n  ... and " << (injected.size() - kMaxLogged) << " more";
+    }
+    LogToFile(log.str());
+}
+
 std::atomic<bool> g_ShouldShowDialog{false};
 std::atomic<bool> g_StopDialogPolling{false};
 std::string g_DialogText = "";
@@ -396,7 +444,8 @@ void MainWorker(HMODULE hMod) {
         while (!Hooks::IsGameUpdateInit()) {
             Sleep(1000);
         }
-        
+
+        LogInjectedModules();
         std::thread(DialogWorker).detach();
 
         char szExeName[MAX_PATH];
